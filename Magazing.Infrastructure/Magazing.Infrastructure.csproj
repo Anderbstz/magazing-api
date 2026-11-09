@@ -18,6 +18,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Magazing.Domain\Magazing.Domain.csproj" />
+      <ProjectReference Include="..\Magazing.Application\Magazing.Application.csproj" />
     </ItemGroup>
 
 </Project>
