@@ -1,9 +1,11 @@
 using System.Text;
+using Magazing.Api.Authorization;
 using Magazing.Application;
 using Magazing.Application.Services;
 using Magazing.Infrastructure.Adapters.Services;
 using Magazing.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
@@ -22,6 +24,7 @@ public static class ServiceRegistrationExtensions
 
         services.AddJwtAuthentication(configuration);
         services.AddAuthorization();
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 
         services.AddControllers();
         services.AddEndpointsApiExplorer();
