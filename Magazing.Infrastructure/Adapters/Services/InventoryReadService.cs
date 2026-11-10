@@ -2,6 +2,8 @@ using Magazing.Application.DTOs.Inventory;
 using Magazing.Application.Inventory;
 using Magazing.Application.Services;
 using Magazing.Domain.Common;
+using Magazing.Domain.Entities;
+using Magazing.Domain.Inventory;
 using Magazing.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -84,6 +86,95 @@ public class InventoryReadService(MagazingDbContext context) : IInventoryReadSer
             LowCount = rows.Count(row => row.Quantity > 0 && row.Quantity <= row.MinStock),
             OutCount = rows.Count(row => row.Quantity <= 0)
         };
+    }
+
+    public async Task<PagedResult<MovementDto>> GetMovementsAsync(MovementFilter filter, CancellationToken cancellationToken = default)
+    {
+        var page = Math.Max(filter.Page, 1);
+        var pageSize = Math.Clamp(filter.PageSize, 1, MaxPageSize);
+
+        var query = context.InventoryMovements.AsNoTracking();
+
+        if (filter.ProductId is { } productId)
+        {
+            query = query.Where(item => item.ProductId == productId);
+        }
+
+        if (filter.WarehouseId is { } warehouseId)
+        {
+            query = query.Where(item => item.WarehouseId == warehouseId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.MovementTypeCode))
+        {
+            query = query.Where(item => item.MovementType.Code == filter.MovementTypeCode);
+        }
+
+        if (filter.FromUtc is { } from)
+        {
+            query = query.Where(item => item.CreatedAt >= from);
+        }
+
+        if (filter.ToUtcExclusive is { } to)
+        {
+            query = query.Where(item => item.CreatedAt < to);
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await ProjectMovements(query
+                .OrderByDescending(item => item.CreatedAt)
+                .ThenByDescending(item => item.InventoryMovementId)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize))
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<MovementDto>
+        {
+            Items = items,
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
+    }
+
+    public async Task<MovementDto> GetMovementAsync(Guid inventoryMovementId, CancellationToken cancellationToken = default)
+    {
+        return await ProjectMovements(context.InventoryMovements.AsNoTracking().Where(item => item.InventoryMovementId == inventoryMovementId))
+                .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new KeyNotFoundException("El movimiento no existe.");
+    }
+
+    private IQueryable<MovementDto> ProjectMovements(IQueryable<InventoryMovement> query)
+    {
+        return query.Select(item => new MovementDto
+        {
+            InventoryMovementId = item.InventoryMovementId,
+            ProductId = item.ProductId,
+            ProductName = item.Product.Name,
+            Sku = item.Product.Sku,
+            WarehouseId = item.WarehouseId,
+            WarehouseCode = item.Warehouse.Code,
+            MovementTypeCode = item.MovementType.Code,
+            MovementTypeName = item.MovementType.Name,
+            Direction = item.MovementType.Direction,
+            Quantity = item.Quantity,
+            UnitCost = item.UnitCost,
+            BalanceAfter = item.BalanceAfter,
+            AverageCostAfter = item.AverageCostAfter,
+            ReferenceType = item.ReferenceType,
+            ReferenceId = item.ReferenceId,
+            ReferenceCode = item.ReferenceType == ReferenceTypes.Transfer
+                ? context.Transfers.Where(transfer => transfer.TransferId == item.ReferenceId).Select(transfer => transfer.Code).FirstOrDefault()
+                : item.ReferenceType == ReferenceTypes.PurchaseOrder
+                    ? context.PurchaseOrders.Where(order => order.PurchaseOrderId == item.ReferenceId).Select(order => order.Code).FirstOrDefault()
+                    : item.ReferenceType == ReferenceTypes.Sale
+                        ? context.Invoices.Where(invoice => invoice.SaleId == item.ReferenceId).Select(invoice => invoice.FullNumber).FirstOrDefault()
+                        : null,
+            Notes = item.Notes,
+            CreatedByName = item.CreatedByNavigation != null ? item.CreatedByNavigation.FullName : "Sistema",
+            CreatedAt = item.CreatedAt
+        });
     }
 
     private IQueryable<StockRow> StockRows(Guid warehouseId)

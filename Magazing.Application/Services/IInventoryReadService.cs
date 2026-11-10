@@ -14,4 +14,8 @@ public interface IInventoryReadService
         CancellationToken cancellationToken = default);
 
     Task<StockSummaryDto> GetStockSummaryAsync(Guid warehouseId, CancellationToken cancellationToken = default);
+
+    Task<PagedResult<MovementDto>> GetMovementsAsync(MovementFilter filter, CancellationToken cancellationToken = default);
+
+    Task<MovementDto> GetMovementAsync(Guid inventoryMovementId, CancellationToken cancellationToken = default);
 }

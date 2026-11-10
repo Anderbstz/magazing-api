@@ -1,5 +1,7 @@
 using Magazing.Domain.Repositories;
 using Magazing.Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Magazing.Infrastructure.Adapters.Repositories;
 
@@ -18,8 +20,23 @@ public class UnitOfWork(MagazingDbContext context) : IUnitOfWork
         return (IRepository<T>)repository;
     }
 
-    public Task<int> CompleteAsync(CancellationToken cancellationToken = default)
+    public async Task<int> CompleteAsync(CancellationToken cancellationToken = default)
     {
-        return context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            return await context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new InvalidOperationException("Otro usuario modifico estos datos al mismo tiempo. Vuelva a intentarlo.");
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        {
+            throw new InvalidOperationException("Ya existe un registro con esos datos.");
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.CheckViolation })
+        {
+            throw new InvalidOperationException("La operacion viola una regla de la base de datos.");
+        }
     }
 }
