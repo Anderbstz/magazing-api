@@ -18,4 +18,8 @@ public interface IInventoryReadService
     Task<PagedResult<MovementDto>> GetMovementsAsync(MovementFilter filter, CancellationToken cancellationToken = default);
 
     Task<MovementDto> GetMovementAsync(Guid inventoryMovementId, CancellationToken cancellationToken = default);
+
+    Task<PagedResult<TransferSummaryDto>> GetTransfersAsync(string? status, int page, int pageSize, CancellationToken cancellationToken = default);
+
+    Task<TransferDetailDto> GetTransferAsync(Guid transferId, CancellationToken cancellationToken = default);
 }

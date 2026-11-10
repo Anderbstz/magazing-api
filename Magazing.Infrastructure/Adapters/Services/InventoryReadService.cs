@@ -145,6 +145,83 @@ public class InventoryReadService(MagazingDbContext context) : IInventoryReadSer
             ?? throw new KeyNotFoundException("El movimiento no existe.");
     }
 
+    public async Task<PagedResult<TransferSummaryDto>> GetTransfersAsync(string? status, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, MaxPageSize);
+
+        var query = context.Transfers.AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(item => item.Status == status);
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await ProjectTransfers<TransferSummaryDto>(query
+                .OrderByDescending(item => item.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize))
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<TransferSummaryDto>
+        {
+            Items = items,
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
+    }
+
+    public async Task<TransferDetailDto> GetTransferAsync(Guid transferId, CancellationToken cancellationToken = default)
+    {
+        var transfer = await ProjectTransfers<TransferDetailDto>(context.Transfers.AsNoTracking().Where(item => item.TransferId == transferId))
+                .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new KeyNotFoundException("La transferencia no existe.");
+
+        var originWarehouseId = transfer.OriginWarehouseId;
+
+        transfer.Items = await context.TransferDetails.AsNoTracking()
+            .Where(item => item.TransferId == transferId)
+            .OrderBy(item => item.Product.Name)
+            .Select(item => new TransferItemDto
+            {
+                ProductId = item.ProductId,
+                Sku = item.Product.Sku,
+                ProductName = item.Product.Name,
+                UnitCode = item.Product.Unit.Code,
+                Quantity = item.Quantity,
+                AvailableAtOrigin = context.Stocks
+                    .Where(stock => stock.ProductId == item.ProductId && stock.WarehouseId == originWarehouseId)
+                    .Select(stock => stock.Quantity)
+                    .FirstOrDefault()
+            })
+            .ToListAsync(cancellationToken);
+
+        return transfer;
+    }
+
+    private static IQueryable<T> ProjectTransfers<T>(IQueryable<Transfer> query) where T : TransferSummaryDto, new()
+    {
+        return query.Select(item => new T
+        {
+            TransferId = item.TransferId,
+            Code = item.Code,
+            OriginWarehouseId = item.OriginWarehouseId,
+            OriginWarehouseName = item.OriginWarehouse.Name,
+            DestinationWarehouseId = item.DestinationWarehouseId,
+            DestinationWarehouseName = item.DestinationWarehouse.Name,
+            Status = item.Status,
+            ItemCount = item.TransferDetails.Count,
+            TotalQuantity = item.TransferDetails.Sum(detail => detail.Quantity),
+            Notes = item.Notes,
+            RequestedByName = item.RequestedByNavigation != null ? item.RequestedByNavigation.FullName : "Sistema",
+            CompletedByName = item.CompletedByNavigation != null ? item.CompletedByNavigation.FullName : null,
+            CreatedAt = item.CreatedAt,
+            CompletedAt = item.CompletedAt
+        });
+    }
+
     private IQueryable<MovementDto> ProjectMovements(IQueryable<InventoryMovement> query)
     {
         return query.Select(item => new MovementDto
