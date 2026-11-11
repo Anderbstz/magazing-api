@@ -24,6 +24,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IInventoryReadService, InventoryReadService>();
         services.AddScoped<InventoryLedger>();
+        services.AddScoped<IPurchaseReadService, PurchaseReadService>();
 
         services.AddJwtAuthentication(configuration);
         services.AddAuthorization();
