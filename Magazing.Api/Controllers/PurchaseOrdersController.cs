@@ -68,6 +68,13 @@ public class PurchaseOrdersController(ISender sender) : ControllerBase
         return Ok(await sender.Send(new ApprovePurchaseOrderCommand(id, User.GetUserId())));
     }
 
+    [HttpPost("{id:guid}/receive")]
+    [Authorize(Policy = Permissions.PurchasesReceive)]
+    public async Task<IActionResult> Receive(Guid id)
+    {
+        return Ok(await sender.Send(new ReceivePurchaseOrderCommand(id, User.GetUserId())));
+    }
+
     [HttpPost("{id:guid}/cancel")]
     [Authorize(Policy = Permissions.PurchasesApprove)]
     public async Task<IActionResult> Cancel(Guid id)
