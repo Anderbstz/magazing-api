@@ -2,6 +2,7 @@ using System.Text;
 using Magazing.Api.Authorization;
 using Magazing.Application;
 using Magazing.Application.Services;
+using Magazing.Domain.Inventory;
 using Magazing.Infrastructure.Adapters.Services;
 using Magazing.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,6 +22,8 @@ public static class ServiceRegistrationExtensions
 
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IInventoryReadService, InventoryReadService>();
+        services.AddScoped<InventoryLedger>();
 
         services.AddJwtAuthentication(configuration);
         services.AddAuthorization();
