@@ -9,5 +9,6 @@ public partial class MagazingDbContext
     {
         modelBuilder.Entity<Stock>().Property(e => e.Version).IsRowVersion();
         modelBuilder.Entity<Product>().Property(e => e.Version).IsRowVersion();
+        modelBuilder.Entity<DocumentSeries>().Property(e => e.Version).IsRowVersion();
     }
 }
