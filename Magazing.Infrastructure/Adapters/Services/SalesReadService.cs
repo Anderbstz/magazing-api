@@ -80,7 +80,8 @@ public class SalesReadService(MagazingDbContext context) : ISalesReadService
                 item.DiscountTotal,
                 item.TaxAmount,
                 item.Notes,
-                item.CancelledAt
+                item.CancelledAt,
+                item.CancelReason
             })
             .FirstAsync(cancellationToken);
 
@@ -91,6 +92,7 @@ public class SalesReadService(MagazingDbContext context) : ISalesReadService
         sale.TaxAmount = extra.TaxAmount;
         sale.Notes = extra.Notes;
         sale.CancelledAt = extra.CancelledAt;
+        sale.CancelReason = extra.CancelReason;
 
         sale.Items = await context.SaleDetails.AsNoTracking()
             .Where(item => item.SaleId == saleId)

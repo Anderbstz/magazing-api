@@ -50,4 +50,11 @@ public class SalesController(ISender sender) : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = sale.SaleId }, sale);
     }
+
+    [HttpPost("{id:guid}/cancel")]
+    [Authorize(Policy = Permissions.SalesCancel)]
+    public async Task<IActionResult> Cancel(Guid id, [FromBody] CancelSaleRequest request)
+    {
+        return Ok(await sender.Send(new CancelSaleCommand(id, request.Reason, User.GetUserId())));
+    }
 }
