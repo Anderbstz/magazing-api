@@ -33,7 +33,13 @@ public partial class Sale
 
     public DateTime CreatedAt { get; set; }
 
+    public string? CancelReason { get; set; }
+
+    public Guid? CancelledBy { get; set; }
+
     public virtual Branch Branch { get; set; } = null!;
+
+    public virtual User? CancelledByNavigation { get; set; }
 
     public virtual Customer Customer { get; set; } = null!;
 
