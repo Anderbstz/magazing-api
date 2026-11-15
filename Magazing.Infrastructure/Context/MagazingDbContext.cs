@@ -899,6 +899,8 @@ public partial class MagazingDbContext : DbContext
 
             entity.HasIndex(e => e.BranchId, "idx_sales_branch_id");
 
+            entity.HasIndex(e => e.CancelledBy, "idx_sales_cancelled_by");
+
             entity.HasIndex(e => e.CustomerId, "idx_sales_customer_id");
 
             entity.HasIndex(e => e.SellerId, "idx_sales_seller_id");
@@ -911,7 +913,11 @@ public partial class MagazingDbContext : DbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("sale_id");
             entity.Property(e => e.BranchId).HasColumnName("branch_id");
+            entity.Property(e => e.CancelReason)
+                .HasMaxLength(255)
+                .HasColumnName("cancel_reason");
             entity.Property(e => e.CancelledAt).HasColumnName("cancelled_at");
+            entity.Property(e => e.CancelledBy).HasColumnName("cancelled_by");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("now()")
                 .HasColumnName("created_at");
@@ -946,12 +952,16 @@ public partial class MagazingDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("sales_branch_id_fkey");
 
+            entity.HasOne(d => d.CancelledByNavigation).WithMany(p => p.SaleCancelledByNavigations)
+                .HasForeignKey(d => d.CancelledBy)
+                .HasConstraintName("sales_cancelled_by_fkey");
+
             entity.HasOne(d => d.Customer).WithMany(p => p.Sales)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("sales_customer_id_fkey");
 
-            entity.HasOne(d => d.Seller).WithMany(p => p.Sales)
+            entity.HasOne(d => d.Seller).WithMany(p => p.SaleSellers)
                 .HasForeignKey(d => d.SellerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("sales_seller_id_fkey");

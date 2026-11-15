@@ -41,7 +41,9 @@ public partial class User
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
-    public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
+    public virtual ICollection<Sale> SaleCancelledByNavigations { get; set; } = new List<Sale>();
+
+    public virtual ICollection<Sale> SaleSellers { get; set; } = new List<Sale>();
 
     public virtual ICollection<StockAlert> StockAlerts { get; set; } = new List<StockAlert>();
 
