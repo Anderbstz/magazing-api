@@ -10,4 +10,8 @@ public interface IForecastReadService
         Guid? productId,
         Guid? warehouseId,
         CancellationToken cancellationToken = default);
+
+    Task<List<StockAlertDto>> GetAlertsAsync(string? status, List<Guid>? alertIds, CancellationToken cancellationToken = default);
+
+    Task<List<string>> GetAlertRecipientEmailsAsync(string permissionCode, CancellationToken cancellationToken = default);
 }

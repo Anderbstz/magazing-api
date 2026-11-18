@@ -43,4 +43,51 @@ public class ForecastReadService(MagazingDbContext context) : IForecastReadServi
             .Select(group => new WeeklySales(group.Key.ProductId, group.Key.WarehouseId, group.Key.Week, group.Sum(item => item.Quantity)))
             .ToList();
     }
+
+    public async Task<List<StockAlertDto>> GetAlertsAsync(string? status, List<Guid>? alertIds, CancellationToken cancellationToken = default)
+    {
+        var query = context.StockAlerts.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(item => item.Status == status);
+        }
+
+        if (alertIds is not null)
+        {
+            query = query.Where(item => alertIds.Contains(item.StockAlertId));
+        }
+
+        return await query
+            .OrderByDescending(item => item.CreatedAt)
+            .Select(item => new StockAlertDto
+            {
+                StockAlertId = item.StockAlertId,
+                ProductId = item.ProductId,
+                ProductName = item.Product.Name,
+                Sku = item.Product.Sku,
+                UnitCode = item.Product.Unit.Code,
+                WarehouseId = item.WarehouseId,
+                WarehouseName = item.Warehouse.Name,
+                AlertType = item.AlertType,
+                CurrentStock = item.CurrentStock,
+                Threshold = item.Threshold,
+                SuggestedOrderQty = item.SuggestedOrderQty,
+                Status = item.Status,
+                CreatedAt = item.CreatedAt,
+                ResolvedAt = item.ResolvedAt,
+                ResolvedByName = item.ResolvedByNavigation != null ? item.ResolvedByNavigation.FullName : null
+            })
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<string>> GetAlertRecipientEmailsAsync(string permissionCode, CancellationToken cancellationToken = default)
+    {
+        return await context.Users.AsNoTracking()
+            .Where(user => user.IsActive
+                && user.UserRoles.Any(userRole => userRole.Role.RolePermissions.Any(rolePermission => rolePermission.Permission.Code == permissionCode)))
+            .Select(user => user.Email)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
 }
