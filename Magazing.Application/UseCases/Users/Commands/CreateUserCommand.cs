@@ -1,4 +1,5 @@
 using Magazing.Application.DTOs.Users;
+using Magazing.Application.Notifications;
 using Magazing.Application.Services;
 using Magazing.Domain.Entities;
 using Magazing.Domain.Repositories;
@@ -91,6 +92,8 @@ internal sealed class CreateUserCommandHandler(IUnitOfWork unitOfWork, IPassword
                 AssignedAt = now
             }, cancellationToken);
         }
+
+        await EmailQueue.EnqueueAsync(unitOfWork, user.Email, EmailTemplates.Welcome(user.FullName, user.Username), cancellationToken);
 
         await unitOfWork.CompleteAsync(cancellationToken);
 

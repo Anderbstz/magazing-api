@@ -1,4 +1,6 @@
+using Magazing.Application.Common;
 using Magazing.Application.DTOs.Sales;
+using Magazing.Application.Notifications;
 using Magazing.Application.Services;
 using Magazing.Domain.Entities;
 using Magazing.Domain.Inventory;
@@ -196,6 +198,24 @@ internal sealed class CreateSaleCommandHandler(
             payment.PaidAt = now;
             await unitOfWork.Repository<Payment>().AddAsync(payment, cancellationToken);
         }
+
+        await EmailQueue.EnqueueAsync(unitOfWork, customer.Email, EmailTemplates.Invoice(new InvoiceEmailData(
+            documentType!,
+            $"{series.Series}-{series.CurrentNumber:D8}",
+            customer.FullName,
+            customer.DocumentType,
+            customer.DocumentNumber,
+            BusinessTime.ToLima(now),
+            lines.Select(line => new InvoiceEmailLine(
+                    products[line.Item.ProductId].Name,
+                    line.Item.Quantity,
+                    line.UnitPrice,
+                    line.Amounts.Discount,
+                    line.Amounts.LineTotal))
+                .ToList(),
+            sale.Subtotal,
+            sale.TaxAmount,
+            sale.Total)), cancellationToken);
 
         await unitOfWork.CompleteAsync(cancellationToken);
 
