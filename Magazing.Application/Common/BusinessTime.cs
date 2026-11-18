@@ -14,6 +14,16 @@ public static class BusinessTime
         return DateOnly.FromDateTime(DateTime.UtcNow.Add(LimaOffset));
     }
 
+    public static DateOnly WeekStart(DateOnly date)
+    {
+        return date.AddDays(-(((int)date.DayOfWeek + 6) % 7));
+    }
+
+    public static DateOnly WeekStartOf(DateTime utc)
+    {
+        return WeekStart(DateOnly.FromDateTime(ToLima(utc)));
+    }
+
     public static DateTime StartOfDayUtc(DateOnly date)
     {
         return new DateTimeOffset(date.ToDateTime(TimeOnly.MinValue), LimaOffset).UtcDateTime;

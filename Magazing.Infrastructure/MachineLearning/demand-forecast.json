@@ -1,0 +1,28 @@
+{
+  "modelVersion": "gbr-v1-20261118",
+  "historyWeeks": 8,
+  "features": [
+    "ratio_lag1",
+    "ratio_lag2",
+    "ratio_lag3",
+    "ratio_lag4",
+    "ratio_mean4",
+    "level_log",
+    "trend",
+    "week_sin",
+    "week_cos"
+  ],
+  "inputName": "features",
+  "residualRatioP10": -0.396435555048422,
+  "residualRatioP90": 0.42135683480012326,
+  "metrics": {
+    "model_mae": 5.061452451947507,
+    "model_wape": 0.19669330094896145,
+    "baseline_mean4_mae": 5.725647528551526,
+    "baseline_mean4_wape": 0.22250461170048794,
+    "interval_coverage_p10_p90": 0.8,
+    "train_rows": 59200,
+    "test_rows": 17760
+  },
+  "onnxMaxAbsDiff": 1.9120158034624524e-07
+}
