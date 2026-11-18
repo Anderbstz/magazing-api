@@ -1,4 +1,6 @@
+using Magazing.Application.Services;
 using Magazing.Domain.Repositories;
+using Magazing.Infrastructure.Adapters.Email;
 using Magazing.Infrastructure.Adapters.Repositories;
 using Magazing.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +19,32 @@ public static class InfrastructureServicesExtensions
         services.AddDbContext<MagazingDbContext>(options => options.UseNpgsql(connectionString));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddEmailServices(configuration);
+
+        return services;
+    }
+
+    private static IServiceCollection AddEmailServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        var section = configuration.GetSection(EmailOptions.SectionName);
+        services.Configure<EmailOptions>(section);
+
+        if (string.IsNullOrWhiteSpace(section[nameof(EmailOptions.ResendApiKey)]))
+        {
+            services.AddScoped<IEmailSender, LogEmailSender>();
+        }
+        else
+        {
+            services.AddHttpClient<IEmailSender, ResendEmailSender>(client =>
+            {
+                client.BaseAddress = new Uri("https://api.resend.com/");
+                client.Timeout = TimeSpan.FromSeconds(15);
+            });
+        }
+
+        services.AddSingleton<EmailDispatcherService>();
+        services.AddHostedService(provider => provider.GetRequiredService<EmailDispatcherService>());
 
         return services;
     }
