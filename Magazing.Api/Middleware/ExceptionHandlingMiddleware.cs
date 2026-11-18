@@ -19,20 +19,24 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
 
             var statusCode = ex switch
             {
+                _ when IsDatabaseUnavailable(ex) => StatusCodes.Status503ServiceUnavailable,
                 InvalidOperationException => StatusCodes.Status400BadRequest,
                 KeyNotFoundException => StatusCodes.Status404NotFound,
                 UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
                 _ => StatusCodes.Status500InternalServerError
             };
 
-            if (statusCode == StatusCodes.Status500InternalServerError)
+            if (statusCode >= StatusCodes.Status500InternalServerError)
             {
                 logger.LogError(ex, "Error no controlado al procesar la solicitud.");
             }
 
-            var message = statusCode == StatusCodes.Status500InternalServerError
-                ? "Ocurrio un error inesperado."
-                : ex.Message;
+            var message = statusCode switch
+            {
+                StatusCodes.Status503ServiceUnavailable => "La base de datos no esta disponible en este momento. Intente nuevamente.",
+                StatusCodes.Status500InternalServerError => "Ocurrio un error inesperado.",
+                _ => ex.Message
+            };
 
             context.Response.Clear();
             context.Response.StatusCode = statusCode;
@@ -41,5 +45,18 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
             var body = JsonSerializer.Serialize(new { error = message });
             await context.Response.WriteAsync(body);
         }
+    }
+
+    private static bool IsDatabaseUnavailable(Exception exception)
+    {
+        for (var current = exception; current is not null; current = current.InnerException)
+        {
+            if (current is TimeoutException or System.Data.Common.DbException { IsTransient: true } or System.Net.Sockets.SocketException)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
