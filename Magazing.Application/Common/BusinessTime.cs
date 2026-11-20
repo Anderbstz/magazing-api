@@ -4,6 +4,11 @@ public static class BusinessTime
 {
     private static readonly TimeSpan LimaOffset = TimeSpan.FromHours(-5);
 
+    public static DateTime ToLima(DateTime utc)
+    {
+        return utc.Add(LimaOffset);
+    }
+
     public static DateOnly Today()
     {
         return DateOnly.FromDateTime(DateTime.UtcNow.Add(LimaOffset));
