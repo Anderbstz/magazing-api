@@ -2,6 +2,8 @@ using Magazing.Application.Services;
 using Magazing.Domain.Repositories;
 using Magazing.Infrastructure.Adapters.Email;
 using Magazing.Infrastructure.Adapters.Repositories;
+using Magazing.Infrastructure.Adapters.Services;
+using Magazing.Infrastructure.MachineLearning;
 using Magazing.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +23,10 @@ public static class InfrastructureServicesExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddEmailServices(configuration);
+
+        services.AddSingleton<IDemandForecaster, OnnxDemandForecaster>();
+        services.AddScoped<IForecastReadService, ForecastReadService>();
+        services.AddHostedService<ForecastSchedulerService>();
 
         return services;
     }
