@@ -35,6 +35,16 @@ public class SalesController(ISender sender) : ControllerBase
         return Ok(await sender.Send(new GetSaleByIdQuery(id)));
     }
 
+    [HttpGet("{id:guid}/pdf")]
+    [Authorize(Policy = Permissions.SalesRead)]
+    [Produces(FileContentTypes.Pdf)]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPdf(Guid id)
+    {
+        var file = await sender.Send(new GetSalePdfQuery(id));
+        return File(file.Content, FileContentTypes.Pdf, file.FileName);
+    }
+
     [HttpPost]
     [Authorize(Policy = Permissions.SalesCreate)]
     public async Task<IActionResult> Create([FromBody] CreateSaleRequest request)
