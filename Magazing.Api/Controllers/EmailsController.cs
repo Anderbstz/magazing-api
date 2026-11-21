@@ -17,9 +17,10 @@ public class EmailsController(ISender sender) : ControllerBase
         [FromQuery] string? status = null,
         [FromQuery] string? search = null,
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20)
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? template = null)
     {
-        return Ok(await sender.Send(new GetEmailsQuery(status, search, page, pageSize)));
+        return Ok(await sender.Send(new GetEmailsQuery(status, search, page, pageSize, template)));
     }
 
     [HttpPost("{id:guid}/retry")]

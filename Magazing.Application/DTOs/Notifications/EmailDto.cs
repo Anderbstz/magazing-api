@@ -8,6 +8,8 @@ public class EmailDto
 
     public string Subject { get; set; } = null!;
 
+    public string HtmlBody { get; set; } = null!;
+
     public string? Template { get; set; }
 
     public string Status { get; set; } = null!;

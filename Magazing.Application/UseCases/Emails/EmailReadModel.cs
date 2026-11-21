@@ -12,6 +12,7 @@ internal static class EmailReadModel
             EmailOutboxId = email.EmailOutboxId,
             ToEmail = email.ToEmail,
             Subject = email.Subject,
+            HtmlBody = email.HtmlBody,
             Template = email.Template,
             Status = email.Status,
             Attempts = email.Attempts,
