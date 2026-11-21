@@ -11,6 +11,12 @@ namespace Magazing.Api.Controllers;
 [Authorize(Policy = Permissions.ReportsRead)]
 public class ReportsController(ISender sender) : ControllerBase
 {
+    [HttpGet("dashboard")]
+    public async Task<IActionResult> Dashboard()
+    {
+        return Ok(await sender.Send(new GetDashboardQuery()));
+    }
+
     [HttpGet("sales")]
     public async Task<IActionResult> Sales([FromQuery] DateOnly from, [FromQuery] DateOnly to, [FromQuery] string? groupBy = null)
     {
