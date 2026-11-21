@@ -28,4 +28,8 @@ public partial class EmailOutbox
     public DateTime? SentAt { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public string? ReferenceType { get; set; }
+
+    public Guid? ReferenceId { get; set; }
 }

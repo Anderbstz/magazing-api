@@ -27,6 +27,8 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<IPurchaseReadService, PurchaseReadService>();
         services.AddScoped<ISalesReadService, SalesReadService>();
         services.AddScoped<IReportsReadService, ReportsReadService>();
+        services.AddScoped<IExcelReportService, ExcelReportService>();
+        services.AddSingleton<IInvoicePdfService, InvoicePdfService>();
 
         services.AddJwtAuthentication(configuration);
         services.AddAuthorization();

@@ -1,4 +1,5 @@
 using Magazing.Application.Security;
+using Magazing.Application.UseCases.Reports.Queries;
 using Magazing.Application.UseCases.Stocks.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -20,6 +21,15 @@ public class StocksController(ISender sender) : ControllerBase
         [FromQuery] int pageSize = 20)
     {
         return Ok(await sender.Send(new GetStocksQuery(warehouseId, status, search, page, pageSize)));
+    }
+
+    [HttpGet("export")]
+    [Produces(FileContentTypes.Excel)]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Export([FromQuery] Guid warehouseId, [FromQuery] string? status = null)
+    {
+        var file = await sender.Send(new ExportStockQuery(warehouseId, status));
+        return File(file.Content, FileContentTypes.Excel, file.FileName);
     }
 
     [HttpGet("summary")]
