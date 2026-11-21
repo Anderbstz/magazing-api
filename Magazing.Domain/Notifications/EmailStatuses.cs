@@ -12,6 +12,11 @@ public static class EmailStatuses
     }
 }
 
+public static class EmailReferenceTypes
+{
+    public const string Sale = "SALE";
+}
+
 public static class EmailTemplateCodes
 {
     public const string Welcome = "WELCOME";

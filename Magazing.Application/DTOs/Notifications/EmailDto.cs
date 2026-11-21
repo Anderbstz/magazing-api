@@ -12,6 +12,10 @@ public class EmailDto
 
     public string? Template { get; set; }
 
+    public string? ReferenceType { get; set; }
+
+    public Guid? ReferenceId { get; set; }
+
     public string Status { get; set; } = null!;
 
     public int Attempts { get; set; }

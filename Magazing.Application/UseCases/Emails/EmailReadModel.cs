@@ -14,6 +14,8 @@ internal static class EmailReadModel
             Subject = email.Subject,
             HtmlBody = email.HtmlBody,
             Template = email.Template,
+            ReferenceType = email.ReferenceType,
+            ReferenceId = email.ReferenceId,
             Status = email.Status,
             Attempts = email.Attempts,
             LastError = email.LastError,
