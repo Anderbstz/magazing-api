@@ -11,6 +11,6 @@ internal sealed class GetWarehouseByIdQueryHandler(IUnitOfWork unitOfWork)
 {
     public async Task<WarehouseDto> Handle(GetWarehouseByIdQuery request, CancellationToken cancellationToken)
     {
-        return WarehouseReadModel.ToDto(await WarehouseReadModel.GetEntityAsync(unitOfWork, request.WarehouseId, cancellationToken));
+        return await WarehouseReadModel.ToDtoAsync(unitOfWork, await WarehouseReadModel.GetEntityAsync(unitOfWork, request.WarehouseId, cancellationToken), cancellationToken);
     }
 }

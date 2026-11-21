@@ -39,6 +39,6 @@ public class WarehousesController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.WarehousesManage)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateWarehouseRequest request)
     {
-        return Ok(await sender.Send(new UpdateWarehouseCommand(id, request.Name, request.Address, request.IsActive)));
+        return Ok(await sender.Send(new UpdateWarehouseCommand(id, request.Name, request.Address, request.IsActive, request.BranchId, request.Code)));
     }
 }

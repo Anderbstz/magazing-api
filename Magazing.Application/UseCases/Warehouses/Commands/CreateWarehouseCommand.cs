@@ -52,6 +52,6 @@ internal sealed class CreateWarehouseCommandHandler(IUnitOfWork unitOfWork)
         await warehouses.AddAsync(warehouse, cancellationToken);
         await unitOfWork.CompleteAsync(cancellationToken);
 
-        return WarehouseReadModel.ToDto(warehouse);
+        return await WarehouseReadModel.ToDtoAsync(unitOfWork, warehouse, cancellationToken);
     }
 }

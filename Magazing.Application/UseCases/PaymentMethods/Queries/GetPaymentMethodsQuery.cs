@@ -5,24 +5,20 @@ using MediatR;
 
 namespace Magazing.Application.UseCases.PaymentMethods.Queries;
 
-public record GetPaymentMethodsQuery : IRequest<List<PaymentMethodDto>>;
+public record GetPaymentMethodsQuery(bool IncludeInactive = false) : IRequest<List<PaymentMethodDto>>;
 
 internal sealed class GetPaymentMethodsQueryHandler(IUnitOfWork unitOfWork)
     : IRequestHandler<GetPaymentMethodsQuery, List<PaymentMethodDto>>
 {
     public async Task<List<PaymentMethodDto>> Handle(GetPaymentMethodsQuery request, CancellationToken cancellationToken)
     {
-        var methods = await unitOfWork.Repository<PaymentMethod>().GetAllAsync(cancellationToken);
+        var methods = request.IncludeInactive
+            ? await unitOfWork.Repository<PaymentMethod>().GetAllAsync(cancellationToken)
+            : await unitOfWork.Repository<PaymentMethod>().FindAsync(item => item.IsActive, cancellationToken);
 
         return methods
             .OrderBy(item => item.Name)
-            .Select(item => new PaymentMethodDto
-            {
-                PaymentMethodId = item.PaymentMethodId,
-                Code = item.Code,
-                Name = item.Name,
-                IsActive = item.IsActive
-            })
+            .Select(PaymentMethodReadModel.ToDto)
             .ToList();
     }
 }

@@ -1,5 +1,6 @@
 using Magazing.Api.Authorization;
 using Magazing.Application.DTOs.Auth;
+using Magazing.Application.DTOs.Settings;
 using Magazing.Application.Services;
 using Magazing.Application.UseCases.Users.Queries;
 using MediatR;
@@ -38,6 +39,14 @@ public class AuthController(IAuthService authService, ISender sender) : Controll
     public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
     {
         await authService.LogoutAsync(request.RefreshToken, cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
+    {
+        await authService.ChangePasswordAsync(User.GetUserId(), request.CurrentPassword, request.NewPassword, cancellationToken);
         return NoContent();
     }
 

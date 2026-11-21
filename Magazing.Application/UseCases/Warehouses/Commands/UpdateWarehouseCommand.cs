@@ -5,11 +5,19 @@ using MediatR;
 
 namespace Magazing.Application.UseCases.Warehouses.Commands;
 
-public record UpdateWarehouseCommand(Guid WarehouseId, string Name, string? Address, bool IsActive) : IRequest<WarehouseDto>;
+public record UpdateWarehouseCommand(
+    Guid WarehouseId,
+    string Name,
+    string? Address,
+    bool IsActive,
+    Guid? BranchId = null,
+    string? Code = null) : IRequest<WarehouseDto>;
 
 internal sealed class UpdateWarehouseCommandHandler(IUnitOfWork unitOfWork)
     : IRequestHandler<UpdateWarehouseCommand, WarehouseDto>
 {
+    private const int MaxCodeLength = 10;
+
     public async Task<WarehouseDto> Handle(UpdateWarehouseCommand request, CancellationToken cancellationToken)
     {
         var name = request.Name?.Trim() ?? string.Empty;
@@ -18,8 +26,35 @@ internal sealed class UpdateWarehouseCommandHandler(IUnitOfWork unitOfWork)
             throw new InvalidOperationException("El nombre del almacen es obligatorio.");
         }
 
-        var warehouse = await unitOfWork.Repository<Warehouse>().GetByIdAsync(request.WarehouseId, cancellationToken)
+        var warehouses = unitOfWork.Repository<Warehouse>();
+        var warehouse = await warehouses.GetByIdAsync(request.WarehouseId, cancellationToken)
             ?? throw new KeyNotFoundException("El almacen no existe.");
+
+        if (!string.IsNullOrWhiteSpace(request.Code))
+        {
+            var code = request.Code.Trim().ToUpper();
+            if (code.Length > MaxCodeLength)
+            {
+                throw new InvalidOperationException($"El codigo debe tener como maximo {MaxCodeLength} caracteres.");
+            }
+
+            if (await warehouses.AnyAsync(item => item.Code == code && item.WarehouseId != request.WarehouseId, cancellationToken))
+            {
+                throw new InvalidOperationException("Ya existe un almacen con ese codigo.");
+            }
+
+            warehouse.Code = code;
+        }
+
+        if (request.BranchId is { } branchId && branchId != warehouse.BranchId)
+        {
+            if (!await unitOfWork.Repository<Branch>().AnyAsync(item => item.BranchId == branchId && item.IsActive, cancellationToken))
+            {
+                throw new InvalidOperationException("La sucursal no existe o esta inactiva.");
+            }
+
+            warehouse.BranchId = branchId;
+        }
 
         if (warehouse.IsActive && !request.IsActive
             && await unitOfWork.Repository<Stock>().AnyAsync(item => item.WarehouseId == request.WarehouseId && item.Quantity > 0, cancellationToken))
@@ -34,6 +69,6 @@ internal sealed class UpdateWarehouseCommandHandler(IUnitOfWork unitOfWork)
 
         await unitOfWork.CompleteAsync(cancellationToken);
 
-        return WarehouseReadModel.ToDto(warehouse);
+        return await WarehouseReadModel.ToDtoAsync(unitOfWork, warehouse, cancellationToken);
     }
 }

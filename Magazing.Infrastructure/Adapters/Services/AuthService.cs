@@ -95,6 +95,43 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
         await unitOfWork.CompleteAsync(cancellationToken);
     }
 
+    public async Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default)
+    {
+        const int minPasswordLength = 8;
+
+        var users = unitOfWork.Repository<User>();
+        var user = await users.GetByIdAsync(userId, cancellationToken)
+            ?? throw new UnauthorizedAccessException("El usuario no existe.");
+
+        if (string.IsNullOrEmpty(currentPassword) || !passwordHasher.Verify(currentPassword, user.PasswordHash))
+        {
+            throw new InvalidOperationException("La contrasena actual no es correcta.");
+        }
+
+        if (string.IsNullOrEmpty(newPassword) || newPassword.Length < minPasswordLength)
+        {
+            throw new InvalidOperationException($"La nueva contrasena debe tener al menos {minPasswordLength} caracteres.");
+        }
+
+        if (passwordHasher.Verify(newPassword, user.PasswordHash))
+        {
+            throw new InvalidOperationException("La nueva contrasena debe ser distinta de la actual.");
+        }
+
+        var now = DateTime.UtcNow;
+        user.PasswordHash = passwordHasher.Hash(newPassword);
+        user.UpdatedAt = now;
+
+        var refreshTokens = unitOfWork.Repository<RefreshToken>();
+        foreach (var token in await refreshTokens.FindAsync(item => item.UserId == userId && item.RevokedAt == null, cancellationToken))
+        {
+            token.RevokedAt = now;
+            refreshTokens.Update(token);
+        }
+
+        await unitOfWork.CompleteAsync(cancellationToken);
+    }
+
     private async Task<AuthResponse> IssueTokensAsync(User user, string refreshToken, string? ipAddress, CancellationToken cancellationToken)
     {
         var (roles, permissions) = await GetRolesAndPermissionsAsync(user.UserId, cancellationToken);

@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Magazing.Application.UseCases.Emails.Queries;
 
-public record GetEmailsQuery(string? Status = null, string? Search = null, int Page = 1, int PageSize = 20) : IRequest<PagedResult<EmailDto>>;
+public record GetEmailsQuery(string? Status = null, string? Search = null, int Page = 1, int PageSize = 20, string? Template = null) : IRequest<PagedResult<EmailDto>>;
 
 internal sealed class GetEmailsQueryHandler(IUnitOfWork unitOfWork)
     : IRequestHandler<GetEmailsQuery, PagedResult<EmailDto>>
@@ -22,9 +22,11 @@ internal sealed class GetEmailsQueryHandler(IUnitOfWork unitOfWork)
         }
 
         var search = string.IsNullOrWhiteSpace(request.Search) ? null : request.Search.Trim().ToLower();
+        var template = string.IsNullOrWhiteSpace(request.Template) ? null : request.Template.Trim().ToUpper();
 
         Expression<Func<EmailOutbox, bool>> predicate = item =>
             (status == null || item.Status == status)
+            && (template == null || item.Template == template)
             && (search == null || item.ToEmail.Contains(search) || item.Subject.ToLower().Contains(search));
 
         var page = await unitOfWork.Repository<EmailOutbox>().GetPagedAsync(

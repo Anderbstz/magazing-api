@@ -9,4 +9,6 @@ public interface IAuthService
     Task<AuthResponse> RefreshAsync(string refreshToken, string? ipAddress, CancellationToken cancellationToken = default);
 
     Task LogoutAsync(string refreshToken, CancellationToken cancellationToken = default);
+
+    Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
 }

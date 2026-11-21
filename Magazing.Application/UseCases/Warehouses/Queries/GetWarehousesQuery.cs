@@ -16,9 +16,6 @@ internal sealed class GetWarehousesQueryHandler(IUnitOfWork unitOfWork)
             ? await unitOfWork.Repository<Warehouse>().FindAsync(item => item.IsActive == isActive, cancellationToken)
             : await unitOfWork.Repository<Warehouse>().GetAllAsync(cancellationToken);
 
-        return warehouses
-            .OrderBy(item => item.Code)
-            .Select(WarehouseReadModel.ToDto)
-            .ToList();
+        return await WarehouseReadModel.ToDtosAsync(unitOfWork, warehouses.OrderBy(item => item.Code).ToList(), cancellationToken);
     }
 }
