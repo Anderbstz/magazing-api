@@ -10,7 +10,9 @@ internal static class EmailQueue
         IUnitOfWork unitOfWork,
         string? to,
         EmailContent content,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string? referenceType = null,
+        Guid? referenceId = null)
     {
         if (string.IsNullOrWhiteSpace(to))
         {
@@ -26,6 +28,8 @@ internal static class EmailQueue
             Subject = content.Subject,
             HtmlBody = content.HtmlBody,
             Template = content.Template,
+            ReferenceType = referenceType,
+            ReferenceId = referenceId,
             Status = EmailStatuses.Pending,
             Attempts = 0,
             ScheduledAt = now,

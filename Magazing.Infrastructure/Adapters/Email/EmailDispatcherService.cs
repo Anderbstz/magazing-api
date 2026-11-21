@@ -1,7 +1,9 @@
 using Magazing.Application.Services;
+using Magazing.Application.UseCases.Sales.Queries;
 using Magazing.Domain.Entities;
 using Magazing.Domain.Notifications;
 using Magazing.Infrastructure.Context;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -58,9 +60,11 @@ public class EmailDispatcherService(
                 """)
             .ToListAsync(cancellationToken);
 
+        var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
+
         foreach (var email in batch)
         {
-            await SendAsync(sender, email, settings.MaxAttempts, cancellationToken);
+            await SendAsync(sender, mediator, email, settings.MaxAttempts, cancellationToken);
         }
 
         await context.SaveChangesAsync(cancellationToken);
@@ -69,13 +73,16 @@ public class EmailDispatcherService(
         return batch.Count;
     }
 
-    private async Task SendAsync(IEmailSender sender, EmailOutbox email, int maxAttempts, CancellationToken cancellationToken)
+    private async Task SendAsync(IEmailSender sender, ISender mediator, EmailOutbox email, int maxAttempts, CancellationToken cancellationToken)
     {
         email.Attempts += 1;
 
         try
         {
-            email.ProviderMessageId = await sender.SendAsync(new EmailMessage(email.ToEmail, email.Subject, email.HtmlBody), cancellationToken);
+            var attachments = await BuildAttachmentsAsync(mediator, email, cancellationToken);
+            email.ProviderMessageId = await sender.SendAsync(
+                new EmailMessage(email.ToEmail, email.Subject, email.HtmlBody, attachments),
+                cancellationToken);
             email.Status = EmailStatuses.Sent;
             email.SentAt = DateTime.UtcNow;
             email.LastError = null;
@@ -94,5 +101,16 @@ public class EmailDispatcherService(
                 email.ScheduledAt = DateTime.UtcNow.AddMinutes(Math.Pow(2, email.Attempts));
             }
         }
+    }
+
+    private static async Task<IReadOnlyList<EmailAttachment>?> BuildAttachmentsAsync(ISender mediator, EmailOutbox email, CancellationToken cancellationToken)
+    {
+        if (email.ReferenceType != EmailReferenceTypes.Sale || email.ReferenceId is not { } saleId)
+        {
+            return null;
+        }
+
+        var pdf = await mediator.Send(new GetSalePdfQuery(saleId), cancellationToken);
+        return [new EmailAttachment(pdf.FileName, pdf.Content)];
     }
 }

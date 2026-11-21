@@ -4,6 +4,7 @@ using Magazing.Application.Notifications;
 using Magazing.Application.Services;
 using Magazing.Domain.Entities;
 using Magazing.Domain.Inventory;
+using Magazing.Domain.Notifications;
 using Magazing.Domain.Repositories;
 using Magazing.Domain.Sales;
 using MediatR;
@@ -215,7 +216,7 @@ internal sealed class CreateSaleCommandHandler(
                 .ToList(),
             sale.Subtotal,
             sale.TaxAmount,
-            sale.Total)), cancellationToken);
+            sale.Total)), cancellationToken, EmailReferenceTypes.Sale, saleId);
 
         await unitOfWork.CompleteAsync(cancellationToken);
 

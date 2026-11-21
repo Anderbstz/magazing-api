@@ -23,6 +23,15 @@ public class ReportsController(ISender sender) : ControllerBase
         return Ok(await sender.Send(new GetSalesReportQuery(from, to, groupBy)));
     }
 
+    [HttpGet("sales/export")]
+    [Produces(FileContentTypes.Excel)]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ExportSales([FromQuery] DateOnly from, [FromQuery] DateOnly to, [FromQuery] string? groupBy = null)
+    {
+        var file = await sender.Send(new ExportSalesReportQuery(from, to, groupBy));
+        return File(file.Content, FileContentTypes.Excel, file.FileName);
+    }
+
     [HttpGet("top-products")]
     public async Task<IActionResult> TopProducts([FromQuery] DateOnly from, [FromQuery] DateOnly to, [FromQuery] int limit = 10)
     {

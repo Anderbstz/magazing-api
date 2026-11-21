@@ -70,6 +70,46 @@ internal static class SalesAggregator
             .ToList();
     }
 
+    public static string NormalizeGroupBy(string? groupBy)
+    {
+        var value = string.IsNullOrWhiteSpace(groupBy) ? GroupByDay : groupBy.Trim().ToLower();
+        if (value is not (GroupByDay or GroupByWeek or GroupByMonth))
+        {
+            throw new InvalidOperationException("groupBy debe ser day, week o month.");
+        }
+
+        return value;
+    }
+
+    public static SalesReportDto BuildReport(IReadOnlyList<SaleLine> lines, DateOnly from, DateOnly to, string groupBy)
+    {
+        var byPeriod = lines
+            .GroupBy(line => PeriodStart(LimaDate(line), groupBy))
+            .ToDictionary(group => group.Key, group => group.ToList());
+
+        var rows = new List<SalesReportRowDto>();
+        for (var period = PeriodStart(from, groupBy); period <= to; period = NextPeriod(period, groupBy))
+        {
+            var summary = Summarize(byPeriod.GetValueOrDefault(period) ?? []);
+            rows.Add(new SalesReportRowDto
+            {
+                Period = period,
+                Count = summary.Count,
+                Subtotal = summary.Subtotal,
+                TaxAmount = summary.TaxAmount,
+                Total = summary.Total,
+                Cost = summary.Cost,
+                GrossProfit = summary.GrossProfit
+            });
+        }
+
+        return new SalesReportDto
+        {
+            Rows = rows,
+            Totals = Summarize(lines)
+        };
+    }
+
     public static (DateTime FromUtc, DateTime ToUtcExclusive) Range(DateOnly from, DateOnly to)
     {
         if (from > to)

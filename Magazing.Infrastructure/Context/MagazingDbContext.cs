@@ -337,6 +337,8 @@ public partial class MagazingDbContext : DbContext
 
             entity.HasIndex(e => new { e.Status, e.ScheduledAt }, "idx_email_outbox_pending");
 
+            entity.HasIndex(e => new { e.ReferenceType, e.ReferenceId }, "idx_email_outbox_reference");
+
             entity.Property(e => e.EmailOutboxId)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("email_outbox_id");
@@ -349,6 +351,10 @@ public partial class MagazingDbContext : DbContext
             entity.Property(e => e.ProviderMessageId)
                 .HasMaxLength(100)
                 .HasColumnName("provider_message_id");
+            entity.Property(e => e.ReferenceId).HasColumnName("reference_id");
+            entity.Property(e => e.ReferenceType)
+                .HasMaxLength(30)
+                .HasColumnName("reference_type");
             entity.Property(e => e.ScheduledAt)
                 .HasDefaultValueSql("now()")
                 .HasColumnName("scheduled_at");

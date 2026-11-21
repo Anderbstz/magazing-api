@@ -7,7 +7,11 @@ public class LogEmailSender(ILogger<LogEmailSender> logger) : IEmailSender
 {
     public Task<string> SendAsync(EmailMessage message, CancellationToken cancellationToken = default)
     {
-        logger.LogInformation("Correo simulado para {To}: {Subject}", message.To, message.Subject);
+        var attachments = message.Attachments is { Count: > 0 } list
+            ? string.Join(", ", list.Select(item => $"{item.FileName} ({item.Content.Length} bytes)"))
+            : "sin adjuntos";
+
+        logger.LogInformation("Correo simulado para {To}: {Subject} [{Attachments}]", message.To, message.Subject, attachments);
         return Task.FromResult($"log-{Guid.NewGuid():N}");
     }
 }
