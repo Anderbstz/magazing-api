@@ -12,16 +12,35 @@ internal static class WarehouseReadModel
             ?? throw new KeyNotFoundException("El almacen no existe.");
     }
 
-    public static WarehouseDto ToDto(Warehouse warehouse)
+    public static async Task<WarehouseDto> ToDtoAsync(IUnitOfWork unitOfWork, Warehouse warehouse, CancellationToken cancellationToken)
     {
-        return new WarehouseDto
+        return (await ToDtosAsync(unitOfWork, [warehouse], cancellationToken))[0];
+    }
+
+    public static async Task<List<WarehouseDto>> ToDtosAsync(IUnitOfWork unitOfWork, IReadOnlyList<Warehouse> warehouses, CancellationToken cancellationToken)
+    {
+        var warehouseIds = warehouses.Select(item => item.WarehouseId).ToList();
+        var branchIds = warehouses.Select(item => item.BranchId).Distinct().ToList();
+
+        var branchNames = (await unitOfWork.Repository<Branch>().FindAsync(item => branchIds.Contains(item.BranchId), cancellationToken))
+            .ToDictionary(item => item.BranchId, item => item.Name);
+
+        var productsWithStock = (await unitOfWork.Repository<Stock>().FindAsync(
+                item => warehouseIds.Contains(item.WarehouseId) && item.Quantity > 0,
+                cancellationToken))
+            .GroupBy(item => item.WarehouseId)
+            .ToDictionary(group => group.Key, group => group.Count());
+
+        return warehouses.Select(warehouse => new WarehouseDto
         {
             WarehouseId = warehouse.WarehouseId,
             BranchId = warehouse.BranchId,
+            BranchName = branchNames.GetValueOrDefault(warehouse.BranchId, string.Empty),
             Code = warehouse.Code,
             Name = warehouse.Name,
             Address = warehouse.Address,
-            IsActive = warehouse.IsActive
-        };
+            IsActive = warehouse.IsActive,
+            ProductsWithStock = productsWithStock.GetValueOrDefault(warehouse.WarehouseId)
+        }).ToList();
     }
 }
