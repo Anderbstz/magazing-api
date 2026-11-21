@@ -26,6 +26,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<InventoryLedger>();
         services.AddScoped<IPurchaseReadService, PurchaseReadService>();
         services.AddScoped<ISalesReadService, SalesReadService>();
+        services.AddScoped<IReportsReadService, ReportsReadService>();
 
         services.AddJwtAuthentication(configuration);
         services.AddAuthorization();
