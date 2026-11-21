@@ -67,6 +67,49 @@ internal static class EmailTemplates
             Layout($"{data.DocumentType} {data.FullNumber}", body));
     }
 
+    public static EmailContent StockAlerts(IReadOnlyList<StockAlertEmailLine> alerts)
+    {
+        var rows = new StringBuilder();
+        foreach (var alert in alerts)
+        {
+            var reason = alert.AlertType == "LOW_STOCK"
+                ? $"Stock en o bajo el minimo ({alert.Threshold:0.##})"
+                : $"Demanda predicha {alert.Threshold:0.##} para esta semana";
+
+            rows.Append($"""
+                <tr>
+                  <td style="padding:6px 8px;border-bottom:1px solid #eee">{Encode(alert.Sku)} - {Encode(alert.ProductName)}</td>
+                  <td style="padding:6px 8px;border-bottom:1px solid #eee">{Encode(alert.WarehouseName)}</td>
+                  <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right">{alert.CurrentStock:0.##}</td>
+                  <td style="padding:6px 8px;border-bottom:1px solid #eee">{Encode(reason)}</td>
+                  <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right">{alert.SuggestedOrderQty:0.##}</td>
+                </tr>
+                """);
+        }
+
+        var body = $"""
+            <p>Se detectaron <strong>{alerts.Count}</strong> productos que necesitan reposicion.</p>
+            <table style="width:100%;border-collapse:collapse;font-size:14px">
+              <thead>
+                <tr style="background:#f4f4f5">
+                  <th style="padding:6px 8px;text-align:left">Producto</th>
+                  <th style="padding:6px 8px;text-align:left">Almacen</th>
+                  <th style="padding:6px 8px;text-align:right">Stock</th>
+                  <th style="padding:6px 8px;text-align:left">Motivo</th>
+                  <th style="padding:6px 8px;text-align:right">Sugerido</th>
+                </tr>
+              </thead>
+              <tbody>{rows}</tbody>
+            </table>
+            <p>Revisa las alertas en Magazing para generar las ordenes de compra.</p>
+            """;
+
+        return new EmailContent(
+            EmailTemplateCodes.StockAlert,
+            $"Magazing: {alerts.Count} alertas de stock",
+            Layout("Alertas de stock", body));
+    }
+
     public static string Money(decimal amount)
     {
         return "S/ " + amount.ToString("N2", Peru);
@@ -107,5 +150,14 @@ internal sealed record InvoiceEmailData(
     decimal Subtotal,
     decimal TaxAmount,
     decimal Total);
+
+internal sealed record StockAlertEmailLine(
+    string Sku,
+    string ProductName,
+    string WarehouseName,
+    string AlertType,
+    decimal CurrentStock,
+    decimal Threshold,
+    decimal? SuggestedOrderQty);
 
 internal sealed record InvoiceEmailLine(string ProductName, decimal Quantity, decimal UnitPrice, decimal Discount, decimal LineTotal);
