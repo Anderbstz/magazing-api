@@ -34,11 +34,34 @@ public static class ServiceRegistrationExtensions
         services.AddAuthorization();
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 
+        services.AddFrontendCors(configuration);
+
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerDocumentation();
 
         services.AddHealthChecks();
+
+        return services;
+    }
+
+    public const string FrontendCorsPolicy = "Frontend";
+
+    private static IServiceCollection AddFrontendCors(this IServiceCollection services, IConfiguration configuration)
+    {
+        var section = configuration.GetSection("Cors:AllowedOrigins");
+        var origins = (section.Get<string[]>() ?? [])
+            .Concat((section.Value ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Select(origin => origin.TrimEnd('/'))
+            .Where(origin => origin.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        services.AddCors(options => options.AddPolicy(FrontendCorsPolicy, policy => policy
+            .WithOrigins(origins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .WithExposedHeaders("Content-Disposition")));
 
         return services;
     }

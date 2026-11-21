@@ -38,7 +38,6 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
                 _ => ex.Message
             };
 
-            context.Response.Clear();
             context.Response.StatusCode = statusCode;
             context.Response.ContentType = "application/json";
 
