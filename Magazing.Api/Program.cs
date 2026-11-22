@@ -9,7 +9,9 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-if (app.Environment.IsDevelopment())
+app.UseCors(ServiceRegistrationExtensions.FrontendCorsPolicy);
+
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue("Swagger:Enabled", false))
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
