@@ -1,4 +1,4 @@
-using Magazing.Api.Authorization;
+using Magazing.Api.Configuration.Authorization;
 using Magazing.Api.Configuration;
 using Magazing.Application.DTOs.Auth;
 using Magazing.Application.DTOs.Settings;

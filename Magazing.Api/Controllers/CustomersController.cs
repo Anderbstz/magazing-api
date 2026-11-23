@@ -1,5 +1,5 @@
 using Magazing.Application.DTOs.Sales;
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.Customers.Commands;
 using Magazing.Application.UseCases.Customers.Queries;
 using MediatR;

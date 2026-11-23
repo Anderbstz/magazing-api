@@ -1,12 +1,12 @@
-using Magazing.Application.Common;
+using Magazing.Application.Services.Common;
 using Magazing.Application.DTOs.Sales;
-using Magazing.Application.Notifications;
+using Magazing.Application.Services.Notifications;
 using Magazing.Application.Services;
 using Magazing.Domain.Entities;
-using Magazing.Domain.Inventory;
-using Magazing.Domain.Notifications;
+using Magazing.Domain.Services.Inventory;
+using Magazing.Domain.Services.Notifications;
 using Magazing.Domain.Repositories;
-using Magazing.Domain.Sales;
+using Magazing.Domain.Services.Sales;
 using MediatR;
 
 namespace Magazing.Application.UseCases.Sales.Commands;

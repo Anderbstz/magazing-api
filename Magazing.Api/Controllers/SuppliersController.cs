@@ -1,5 +1,5 @@
 using Magazing.Application.DTOs.Purchases;
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.Suppliers.Commands;
 using Magazing.Application.UseCases.Suppliers.Queries;
 using MediatR;

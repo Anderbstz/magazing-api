@@ -1,5 +1,5 @@
 using Magazing.Application.DTOs.Purchases;
-using Magazing.Domain.Common;
+using Magazing.Domain.Services.Common;
 
 namespace Magazing.Application.Services;
 

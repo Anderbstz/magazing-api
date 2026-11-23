@@ -1,7 +1,7 @@
-using Magazing.Application.Common;
+using Magazing.Application.Services.Common;
 using Magazing.Application.DTOs.Sales;
 using Magazing.Domain.Entities;
-using Magazing.Domain.Sales;
+using Magazing.Domain.Services.Sales;
 
 namespace Magazing.Application.UseCases.Customers;
 

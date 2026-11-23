@@ -1,5 +1,5 @@
 using Magazing.Application.DTOs.Roles;
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.Roles.Commands;
 using Magazing.Application.UseCases.Roles.Queries;
 using MediatR;

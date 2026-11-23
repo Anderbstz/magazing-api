@@ -1,4 +1,4 @@
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.Reports.Queries;
 using Magazing.Application.UseCases.Stocks.Queries;
 using MediatR;

@@ -1,5 +1,5 @@
 using Magazing.Application.DTOs.Inventory;
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.Warehouses.Commands;
 using Magazing.Application.UseCases.Warehouses.Queries;
 using MediatR;

@@ -1,6 +1,6 @@
-using Magazing.Application.Common;
+using Magazing.Application.Services.Common;
 using Magazing.Application.DTOs.Inventory;
-using Magazing.Domain.Inventory;
+using Magazing.Domain.Services.Inventory;
 
 namespace Magazing.Application.UseCases.Inventory;
 

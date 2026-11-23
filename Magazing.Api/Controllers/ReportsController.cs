@@ -1,4 +1,4 @@
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.Reports.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

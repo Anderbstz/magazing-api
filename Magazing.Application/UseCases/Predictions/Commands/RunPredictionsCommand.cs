@@ -1,9 +1,9 @@
 using Magazing.Application.DTOs.Forecasting;
-using Magazing.Application.Notifications;
-using Magazing.Application.Security;
+using Magazing.Application.Services.Notifications;
+using Magazing.Application.Services.Security;
 using Magazing.Application.Services;
 using Magazing.Domain.Entities;
-using Magazing.Domain.Forecasting;
+using Magazing.Domain.Services.Forecasting;
 using Magazing.Domain.Repositories;
 using MediatR;
 

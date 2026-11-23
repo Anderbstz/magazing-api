@@ -1,7 +1,7 @@
 using Magazing.Application.Services;
 using Magazing.Application.UseCases.Sales.Queries;
 using Magazing.Domain.Entities;
-using Magazing.Domain.Notifications;
+using Magazing.Domain.Services.Notifications;
 using Magazing.Infrastructure.Context;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

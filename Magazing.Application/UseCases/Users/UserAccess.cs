@@ -1,6 +1,6 @@
-using Magazing.Application.Common;
-using Magazing.Application.Notifications;
-using Magazing.Application.Security;
+using Magazing.Application.Services.Common;
+using Magazing.Application.Services.Notifications;
+using Magazing.Application.Services.Security;
 using Magazing.Application.Services;
 using Magazing.Domain.Entities;
 using Magazing.Domain.Repositories;

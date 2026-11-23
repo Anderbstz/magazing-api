@@ -1,8 +1,8 @@
-using Magazing.Application.Common;
+using Magazing.Application.Services.Common;
 using Magazing.Application.DTOs.Sales;
 using Magazing.Application.Services;
-using Magazing.Domain.Common;
-using Magazing.Domain.Sales;
+using Magazing.Domain.Services.Common;
+using Magazing.Domain.Services.Sales;
 using MediatR;
 
 namespace Magazing.Application.UseCases.Sales.Queries;

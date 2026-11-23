@@ -1,4 +1,4 @@
-using Magazing.Application.Common;
+using Magazing.Application.Services.Common;
 using Magazing.Application.DTOs.Reports;
 using Magazing.Application.Services;
 using Magazing.Domain.Entities;

@@ -1,4 +1,4 @@
-using Magazing.Application.Common;
+using Magazing.Application.Services.Common;
 using Magazing.Application.DTOs.Reports;
 
 namespace Magazing.Application.UseCases.Reports;

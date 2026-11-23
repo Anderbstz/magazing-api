@@ -1,6 +1,6 @@
 using Magazing.Application.DTOs.Forecasting;
 using Magazing.Application.Services;
-using Magazing.Domain.Forecasting;
+using Magazing.Domain.Services.Forecasting;
 using MediatR;
 
 namespace Magazing.Application.UseCases.Alerts.Queries;

@@ -1,7 +1,7 @@
-using Magazing.Application.Common;
+using Magazing.Application.Services.Common;
 using Magazing.Application.DTOs.Forecasting;
 using Magazing.Application.Services;
-using Magazing.Domain.Sales;
+using Magazing.Domain.Services.Sales;
 using Magazing.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 

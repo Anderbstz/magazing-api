@@ -1,8 +1,8 @@
 using ClosedXML.Excel;
-using Magazing.Application.Common;
+using Magazing.Application.Services.Common;
 using Magazing.Application.DTOs.Inventory;
 using Magazing.Application.DTOs.Reports;
-using Magazing.Application.Inventory;
+using Magazing.Application.Services.Inventory;
 using Magazing.Application.Services;
 
 namespace Magazing.Infrastructure.Adapters.Services;

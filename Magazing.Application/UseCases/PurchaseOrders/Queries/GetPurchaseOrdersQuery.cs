@@ -1,7 +1,7 @@
 using Magazing.Application.DTOs.Purchases;
 using Magazing.Application.Services;
-using Magazing.Domain.Common;
-using Magazing.Domain.Purchases;
+using Magazing.Domain.Services.Common;
+using Magazing.Domain.Services.Purchases;
 using MediatR;
 
 namespace Magazing.Application.UseCases.PurchaseOrders.Queries;

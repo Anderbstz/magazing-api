@@ -1,5 +1,5 @@
 using Magazing.Application.DTOs.Settings;
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.PaymentMethods.Commands;
 using Magazing.Application.UseCases.PaymentMethods.Queries;
 using MediatR;

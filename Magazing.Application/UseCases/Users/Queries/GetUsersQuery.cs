@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 using Magazing.Application.DTOs.Users;
-using Magazing.Domain.Common;
+using Magazing.Domain.Services.Common;
 using Magazing.Domain.Entities;
 using Magazing.Domain.Repositories;
 using MediatR;
