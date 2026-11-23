@@ -26,7 +26,7 @@ internal sealed class ExportStockQueryHandler(
         }
 
         var warehouse = await unitOfWork.Repository<Warehouse>().FirstOrDefaultAsync(item => item.WarehouseId == request.WarehouseId, cancellationToken)
-            ?? throw new KeyNotFoundException("El almacen no existe.");
+            ?? throw new KeyNotFoundException("El almacén no existe.");
 
         var items = new List<StockItemDto>();
         for (var page = 1; ; page++)

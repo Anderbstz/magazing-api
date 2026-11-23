@@ -23,24 +23,24 @@ internal sealed class UpdateWarehouseCommandHandler(IUnitOfWork unitOfWork)
         var name = request.Name?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new InvalidOperationException("El nombre del almacen es obligatorio.");
+            throw new InvalidOperationException("El nombre del almacén es obligatorio.");
         }
 
         var warehouses = unitOfWork.Repository<Warehouse>();
         var warehouse = await warehouses.GetByIdAsync(request.WarehouseId, cancellationToken)
-            ?? throw new KeyNotFoundException("El almacen no existe.");
+            ?? throw new KeyNotFoundException("El almacén no existe.");
 
         if (!string.IsNullOrWhiteSpace(request.Code))
         {
             var code = request.Code.Trim().ToUpper();
             if (code.Length > MaxCodeLength)
             {
-                throw new InvalidOperationException($"El codigo debe tener como maximo {MaxCodeLength} caracteres.");
+                throw new InvalidOperationException($"El código debe tener como máximo {MaxCodeLength} caracteres.");
             }
 
             if (await warehouses.AnyAsync(item => item.Code == code && item.WarehouseId != request.WarehouseId, cancellationToken))
             {
-                throw new InvalidOperationException("Ya existe un almacen con ese codigo.");
+                throw new InvalidOperationException("Ya existe un almacén con ese código.");
             }
 
             warehouse.Code = code;
@@ -50,7 +50,7 @@ internal sealed class UpdateWarehouseCommandHandler(IUnitOfWork unitOfWork)
         {
             if (!await unitOfWork.Repository<Branch>().AnyAsync(item => item.BranchId == branchId && item.IsActive, cancellationToken))
             {
-                throw new InvalidOperationException("La sucursal no existe o esta inactiva.");
+                throw new InvalidOperationException("La sucursal no existe o está inactiva.");
             }
 
             warehouse.BranchId = branchId;
@@ -59,7 +59,7 @@ internal sealed class UpdateWarehouseCommandHandler(IUnitOfWork unitOfWork)
         if (warehouse.IsActive && !request.IsActive
             && await unitOfWork.Repository<Stock>().AnyAsync(item => item.WarehouseId == request.WarehouseId && item.Quantity > 0, cancellationToken))
         {
-            throw new InvalidOperationException("No se puede desactivar un almacen que todavia tiene stock.");
+            throw new InvalidOperationException("No se puede desactivar un almacén que todavía tiene stock.");
         }
 
         warehouse.Name = name;

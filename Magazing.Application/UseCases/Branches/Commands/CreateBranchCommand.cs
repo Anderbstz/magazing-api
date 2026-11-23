@@ -18,7 +18,7 @@ internal sealed class CreateBranchCommandHandler(IUnitOfWork unitOfWork)
 
         if (await branches.AnyAsync(item => item.Code == code, cancellationToken))
         {
-            throw new InvalidOperationException("Ya existe una sucursal con ese codigo.");
+            throw new InvalidOperationException("Ya existe una sucursal con ese código.");
         }
 
         var company = await CompanyReadModel.GetAsync(unitOfWork, cancellationToken);

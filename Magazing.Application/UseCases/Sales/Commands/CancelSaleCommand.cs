@@ -23,7 +23,7 @@ internal sealed class CancelSaleCommandHandler(
         var reason = request.Reason?.Trim() ?? string.Empty;
         if (reason.Length < MinReasonLength)
         {
-            throw new InvalidOperationException($"El motivo de anulacion debe tener al menos {MinReasonLength} caracteres.");
+            throw new InvalidOperationException($"El motivo de anulación debe tener al menos {MinReasonLength} caracteres.");
         }
 
         var sale = await unitOfWork.Repository<Sale>().GetByIdAsync(request.SaleId, cancellationToken)
@@ -36,7 +36,7 @@ internal sealed class CancelSaleCommandHandler(
 
         var invoices = unitOfWork.Repository<Invoice>();
         var invoice = await invoices.FirstOrDefaultAsync(item => item.SaleId == sale.SaleId, cancellationToken);
-        var notes = $"Anulacion de {invoice?.FullNumber ?? "venta"}: {reason}";
+        var notes = $"Anulación de {invoice?.FullNumber ?? "venta"}: {reason}";
 
         var details = await unitOfWork.Repository<SaleDetail>().FindAsync(item => item.SaleId == sale.SaleId, cancellationToken);
         foreach (var detail in details)

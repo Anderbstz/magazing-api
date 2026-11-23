@@ -38,7 +38,7 @@ public class InvoicePdfService : IInvoicePdfService
                 page.Content().PaddingVertical(14).Element(content => ComposeContent(content, sale));
                 page.Footer().AlignCenter().Text(text =>
                 {
-                    text.Span("Representacion impresa de un comprobante de prueba generado por Magazing. No tiene validez tributaria.")
+                    text.Span("Representación impresa de un comprobante de prueba generado por Magazing. No tiene validez tributaria.")
                         .FontSize(7).FontColor(Muted);
                 });
 
@@ -136,7 +136,7 @@ public class InvoicePdfService : IInvoicePdfService
 
                 table.Header(header =>
                 {
-                    foreach (var label in new[] { "Cant.", "Unid.", "Descripcion", "P. unit.", "Desc.", "Importe" })
+                    foreach (var label in new[] { "Cant.", "Unid.", "Descripción", "P. unit.", "Desc.", "Importe" })
                     {
                         header.Cell().Background(Accent).PaddingVertical(5).PaddingHorizontal(4)
                             .Text(label).FontColor(Colors.White).Bold();

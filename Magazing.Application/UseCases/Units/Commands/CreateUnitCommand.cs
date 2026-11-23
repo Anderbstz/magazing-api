@@ -20,7 +20,7 @@ internal sealed class CreateUnitCommandHandler(IUnitOfWork unitOfWork)
 
         if (string.IsNullOrWhiteSpace(code) || code.Length > MaxCodeLength)
         {
-            throw new InvalidOperationException($"El codigo es obligatorio y debe tener como maximo {MaxCodeLength} caracteres.");
+            throw new InvalidOperationException($"El código es obligatorio y debe tener como máximo {MaxCodeLength} caracteres.");
         }
 
         if (string.IsNullOrWhiteSpace(name))
@@ -31,7 +31,7 @@ internal sealed class CreateUnitCommandHandler(IUnitOfWork unitOfWork)
         var units = unitOfWork.Repository<Unit>();
         if (await units.AnyAsync(item => item.Code == code, cancellationToken))
         {
-            throw new InvalidOperationException("Ya existe una unidad con ese codigo.");
+            throw new InvalidOperationException("Ya existe una unidad con ese código.");
         }
 
         var unit = new Unit

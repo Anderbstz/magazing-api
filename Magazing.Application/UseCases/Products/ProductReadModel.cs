@@ -73,22 +73,22 @@ internal static class ProductReadModel
     {
         if (minStock < 0)
         {
-            throw new InvalidOperationException("El stock minimo no puede ser negativo.");
+            throw new InvalidOperationException("El stock mínimo no puede ser negativo.");
         }
 
         if (maxStock is { } max && max < minStock)
         {
-            throw new InvalidOperationException("El stock maximo no puede ser menor que el stock minimo.");
+            throw new InvalidOperationException("El stock máximo no puede ser menor que el stock mínimo.");
         }
 
         if (!await unitOfWork.Repository<Category>().AnyAsync(item => item.CategoryId == categoryId && item.IsActive, cancellationToken))
         {
-            throw new InvalidOperationException("La categoria no existe o esta inactiva.");
+            throw new InvalidOperationException("La categoría no existe o está inactiva.");
         }
 
         if (brandId is { } id && !await unitOfWork.Repository<Brand>().AnyAsync(item => item.BrandId == id && item.IsActive, cancellationToken))
         {
-            throw new InvalidOperationException("La marca no existe o esta inactiva.");
+            throw new InvalidOperationException("La marca no existe o está inactiva.");
         }
 
         if (!await unitOfWork.Repository<Unit>().AnyAsync(item => item.UnitId == unitId, cancellationToken))
@@ -106,7 +106,7 @@ internal static class ProductReadModel
 
         if (decimal.Round(price, 2) != price)
         {
-            throw new InvalidOperationException("El precio admite como maximo 2 decimales.");
+            throw new InvalidOperationException("El precio admite como máximo 2 decimales.");
         }
     }
 }

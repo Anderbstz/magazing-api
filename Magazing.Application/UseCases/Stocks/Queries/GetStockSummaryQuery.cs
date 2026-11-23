@@ -15,7 +15,7 @@ internal sealed class GetStockSummaryQueryHandler(IUnitOfWork unitOfWork, IInven
     {
         if (!await unitOfWork.Repository<Warehouse>().AnyAsync(item => item.WarehouseId == request.WarehouseId, cancellationToken))
         {
-            throw new KeyNotFoundException("El almacen no existe.");
+            throw new KeyNotFoundException("El almacén no existe.");
         }
 
         return await inventoryReadService.GetStockSummaryAsync(request.WarehouseId, cancellationToken);

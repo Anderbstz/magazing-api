@@ -51,7 +51,7 @@ internal sealed class CreateProductCommandHandler(IUnitOfWork unitOfWork)
 
         if (barcode is not null && await products.AnyAsync(item => item.Barcode == barcode, cancellationToken))
         {
-            throw new InvalidOperationException("Ya existe un producto con ese codigo de barras.");
+            throw new InvalidOperationException("Ya existe un producto con ese código de barras.");
         }
 
         var now = DateTime.UtcNow;

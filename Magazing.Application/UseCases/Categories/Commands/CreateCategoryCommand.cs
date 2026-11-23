@@ -15,13 +15,13 @@ internal sealed class CreateCategoryCommandHandler(IUnitOfWork unitOfWork)
         var name = request.Name?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new InvalidOperationException("El nombre de la categoria es obligatorio.");
+            throw new InvalidOperationException("El nombre de la categoría es obligatorio.");
         }
 
         var categories = unitOfWork.Repository<Category>();
         if (await categories.AnyAsync(item => item.Name.ToLower() == name.ToLower(), cancellationToken))
         {
-            throw new InvalidOperationException("Ya existe una categoria con ese nombre.");
+            throw new InvalidOperationException("Ya existe una categoría con ese nombre.");
         }
 
         await CategoryReadModel.EnsureValidParentAsync(unitOfWork, null, request.ParentCategoryId, cancellationToken);

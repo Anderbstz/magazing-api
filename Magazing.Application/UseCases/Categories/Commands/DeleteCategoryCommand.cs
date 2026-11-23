@@ -13,16 +13,16 @@ internal sealed class DeleteCategoryCommandHandler(IUnitOfWork unitOfWork)
     {
         var categories = unitOfWork.Repository<Category>();
         var category = await categories.GetByIdAsync(request.CategoryId, cancellationToken)
-            ?? throw new KeyNotFoundException("La categoria no existe.");
+            ?? throw new KeyNotFoundException("La categoría no existe.");
 
         if (await unitOfWork.Repository<Product>().AnyAsync(item => item.CategoryId == request.CategoryId, cancellationToken))
         {
-            throw new InvalidOperationException("La categoria tiene productos asociados. Desactivela en lugar de eliminarla.");
+            throw new InvalidOperationException("La categoría tiene productos asociados. Desactívela en lugar de eliminarla.");
         }
 
         if (await categories.AnyAsync(item => item.ParentCategoryId == request.CategoryId, cancellationToken))
         {
-            throw new InvalidOperationException("La categoria tiene subcategorias.");
+            throw new InvalidOperationException("La categoría tiene subcategorías.");
         }
 
         categories.Delete(category);

@@ -53,22 +53,22 @@ internal static class CustomerReadModel
 
         if (!validNumber)
         {
-            throw new InvalidOperationException($"El numero de documento no es valido para {data.DocumentType}.");
+            throw new InvalidOperationException($"El número de documento no es válido para {data.DocumentType}.");
         }
 
         if (SalesRules.IsGenericCustomer(data.DocumentType, data.DocumentNumber))
         {
-            throw new InvalidOperationException("El documento 00000000 esta reservado para CLIENTES VARIOS.");
+            throw new InvalidOperationException("El documento 00000000 está reservado para CLIENTES VARIOS.");
         }
 
         if (string.IsNullOrWhiteSpace(data.FullName))
         {
-            throw new InvalidOperationException("El nombre o razon social es obligatorio.");
+            throw new InvalidOperationException("El nombre o razón social es obligatorio.");
         }
 
         if (data.Email is not null && !DocumentValidator.IsValidEmail(data.Email))
         {
-            throw new InvalidOperationException("El correo no es valido.");
+            throw new InvalidOperationException("El correo no es válido.");
         }
 
         return data;

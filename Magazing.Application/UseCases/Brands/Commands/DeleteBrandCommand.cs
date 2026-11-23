@@ -17,7 +17,7 @@ internal sealed class DeleteBrandCommandHandler(IUnitOfWork unitOfWork)
 
         if (await unitOfWork.Repository<Product>().AnyAsync(item => item.BrandId == request.BrandId, cancellationToken))
         {
-            throw new InvalidOperationException("La marca tiene productos asociados. Desactivela en lugar de eliminarla.");
+            throw new InvalidOperationException("La marca tiene productos asociados. Desactívela en lugar de eliminarla.");
         }
 
         brands.Delete(brand);

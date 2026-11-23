@@ -21,7 +21,7 @@ internal sealed class UpdateBranchCommandHandler(IUnitOfWork unitOfWork)
 
         if (await branches.AnyAsync(item => item.Code == code && item.BranchId != request.BranchId, cancellationToken))
         {
-            throw new InvalidOperationException("Ya existe una sucursal con ese codigo.");
+            throw new InvalidOperationException("Ya existe una sucursal con ese código.");
         }
 
         if (branch.IsActive && !request.IsActive

@@ -20,6 +20,7 @@ public static class EmailReferenceTypes
 public static class EmailTemplateCodes
 {
     public const string Welcome = "WELCOME";
+    public const string AccessReset = "ACCESS_RESET";
     public const string Invoice = "INVOICE";
     public const string StockAlert = "STOCK_ALERT";
 }

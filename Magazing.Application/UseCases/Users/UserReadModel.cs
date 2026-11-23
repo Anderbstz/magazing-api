@@ -43,7 +43,7 @@ internal static class UserReadModel
         var found = (await unitOfWork.Repository<Role>().FindAsync(item => roleIds.Contains(item.RoleId), cancellationToken)).Count();
         if (found != roleIds.Count)
         {
-            throw new InvalidOperationException("Uno o mas roles indicados no existen.");
+            throw new InvalidOperationException("Uno o más roles indicados no existen.");
         }
     }
 
@@ -58,6 +58,8 @@ internal static class UserReadModel
             BranchId = user.BranchId,
             IsActive = user.IsActive,
             EmailConfirmed = user.EmailConfirmed,
+            MustChangePassword = user.MustChangePassword,
+            TempPasswordExpiresAt = user.TempPasswordExpiresAt,
             LastLoginAt = user.LastLoginAt,
             CreatedAt = user.CreatedAt,
             Roles = roles

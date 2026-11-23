@@ -23,7 +23,7 @@ internal sealed class CreateTransferCommandHandler(IUnitOfWork unitOfWork, IInve
 
         if (request.OriginWarehouseId == request.DestinationWarehouseId)
         {
-            throw new InvalidOperationException("El almacen de origen y el de destino deben ser distintos.");
+            throw new InvalidOperationException("El almacén de origen y el de destino deben ser distintos.");
         }
 
         if (items.Count == 0)
@@ -49,7 +49,7 @@ internal sealed class CreateTransferCommandHandler(IUnitOfWork unitOfWork, IInve
 
         if (activeWarehouses != 2)
         {
-            throw new InvalidOperationException("El almacen de origen o de destino no existe o esta inactivo.");
+            throw new InvalidOperationException("El almacén de origen o de destino no existe o está inactivo.");
         }
 
         var activeProducts = (await unitOfWork.Repository<Product>().FindAsync(
@@ -58,7 +58,7 @@ internal sealed class CreateTransferCommandHandler(IUnitOfWork unitOfWork, IInve
 
         if (activeProducts != productIds.Count)
         {
-            throw new InvalidOperationException("Uno o mas productos no existen o estan inactivos.");
+            throw new InvalidOperationException("Uno o más productos no existen o están inactivos.");
         }
 
         var transfers = unitOfWork.Repository<Transfer>();

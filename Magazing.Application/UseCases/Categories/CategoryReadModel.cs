@@ -10,7 +10,7 @@ internal static class CategoryReadModel
     {
         var categories = unitOfWork.Repository<Category>();
         var category = await categories.FirstOrDefaultAsync(item => item.CategoryId == categoryId, cancellationToken)
-            ?? throw new KeyNotFoundException("La categoria no existe.");
+            ?? throw new KeyNotFoundException("La categoría no existe.");
 
         string? parentName = null;
         if (category.ParentCategoryId is { } parentId)
@@ -47,7 +47,7 @@ internal static class CategoryReadModel
 
         if (!all.ContainsKey(parentCategoryId.Value))
         {
-            throw new InvalidOperationException("La categoria padre no existe.");
+            throw new InvalidOperationException("La categoría padre no existe.");
         }
 
         if (categoryId is null)
@@ -60,7 +60,7 @@ internal static class CategoryReadModel
         {
             if (currentId == categoryId)
             {
-                throw new InvalidOperationException("Una categoria no puede ser padre de si misma ni de sus ancestros.");
+                throw new InvalidOperationException("Una categoría no puede ser padre de sí misma ni de sus ancestros.");
             }
 
             currentId = all.TryGetValue(currentId.Value, out var current) ? current.ParentCategoryId : null;

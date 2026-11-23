@@ -13,7 +13,7 @@ internal static class CompanyReadModel
         return (await unitOfWork.Repository<CompanyEntity>().GetAllAsync(cancellationToken))
             .OrderBy(item => item.CreatedAt)
             .FirstOrDefault()
-            ?? throw new KeyNotFoundException("La empresa no esta configurada.");
+            ?? throw new KeyNotFoundException("La empresa no está configurada.");
     }
 
     public static CompanyDto ToDto(CompanyEntity company)
