@@ -74,7 +74,7 @@ internal sealed class GetDemandForecastQueryHandler(
         if (warehouseId is { } id)
         {
             return await warehouses.FirstOrDefaultAsync(item => item.WarehouseId == id, cancellationToken)
-                ?? throw new KeyNotFoundException("El almacen no existe.");
+                ?? throw new KeyNotFoundException("El almacén no existe.");
         }
 
         return (await warehouses.FindAsync(item => item.IsActive, cancellationToken))

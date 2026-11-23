@@ -18,7 +18,7 @@ internal static class MovementFilterFactory
         var normalizedType = string.IsNullOrWhiteSpace(type) ? null : type.Trim().ToUpper();
         if (normalizedType is not null && !MovementTypeCodes.All.Contains(normalizedType))
         {
-            throw new InvalidOperationException("El tipo de movimiento no es valido.");
+            throw new InvalidOperationException("El tipo de movimiento no es válido.");
         }
 
         if (from is { } fromDate && to is { } toDate && fromDate > toDate)

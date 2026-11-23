@@ -27,6 +27,10 @@ public partial class User
 
     public DateTime? UpdatedAt { get; set; }
 
+    public bool MustChangePassword { get; set; }
+
+    public DateTime? TempPasswordExpiresAt { get; set; }
+
     public virtual Branch? Branch { get; set; }
 
     public virtual ICollection<InventoryMovement> InventoryMovements { get; set; } = new List<InventoryMovement>();

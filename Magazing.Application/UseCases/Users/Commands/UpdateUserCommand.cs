@@ -17,7 +17,7 @@ internal sealed class UpdateUserCommandHandler(IUnitOfWork unitOfWork)
 
         if (!email.Contains('@'))
         {
-            throw new InvalidOperationException("El correo no es valido.");
+            throw new InvalidOperationException("El correo no es válido.");
         }
 
         if (string.IsNullOrWhiteSpace(fullName))
@@ -31,7 +31,7 @@ internal sealed class UpdateUserCommandHandler(IUnitOfWork unitOfWork)
 
         if (await users.AnyAsync(item => item.Email == email && item.UserId != request.UserId, cancellationToken))
         {
-            throw new InvalidOperationException("El correo ya esta registrado.");
+            throw new InvalidOperationException("El correo ya está registrado.");
         }
 
         if (request.BranchId is { } branchId

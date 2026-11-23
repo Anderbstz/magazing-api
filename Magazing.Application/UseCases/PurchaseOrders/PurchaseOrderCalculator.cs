@@ -26,12 +26,12 @@ internal static class PurchaseOrderCalculator
 
         if (!await unitOfWork.Repository<Supplier>().AnyAsync(item => item.SupplierId == supplierId && item.IsActive, cancellationToken))
         {
-            throw new InvalidOperationException("El proveedor no existe o esta inactivo.");
+            throw new InvalidOperationException("El proveedor no existe o está inactivo.");
         }
 
         if (!await unitOfWork.Repository<Warehouse>().AnyAsync(item => item.WarehouseId == warehouseId && item.IsActive, cancellationToken))
         {
-            throw new InvalidOperationException("El almacen no existe o esta inactivo.");
+            throw new InvalidOperationException("El almacén no existe o está inactivo.");
         }
 
         if (items.Count == 0)
@@ -52,7 +52,7 @@ internal static class PurchaseOrderCalculator
 
         if (products.Count != productIds.Count)
         {
-            throw new InvalidOperationException("Uno o mas productos no existen o estan inactivos.");
+            throw new InvalidOperationException("Uno o más productos no existen o están inactivos.");
         }
 
         var unitIds = products.Values.Select(item => item.UnitId).Distinct().ToList();
@@ -78,7 +78,7 @@ internal static class PurchaseOrderCalculator
 
             if (item.UnitCost < 0 || decimal.Round(item.UnitCost, 4) != item.UnitCost)
             {
-                throw new InvalidOperationException($"El costo de {product.Sku} debe ser positivo y tener como maximo 4 decimales.");
+                throw new InvalidOperationException($"El costo de {product.Sku} debe ser positivo y tener como máximo 4 decimales.");
             }
 
             var subtotal = decimal.Round(item.Quantity * item.UnitCost, 2);

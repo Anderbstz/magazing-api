@@ -56,12 +56,12 @@ internal sealed class CreateSaleCommandHandler(
         var warehouse = await unitOfWork.Repository<Warehouse>().FirstOrDefaultAsync(
                 item => item.WarehouseId == request.WarehouseId && item.IsActive,
                 cancellationToken)
-            ?? throw new InvalidOperationException("El almacen no existe o esta inactivo.");
+            ?? throw new InvalidOperationException("El almacén no existe o está inactivo.");
 
         var customer = await unitOfWork.Repository<Customer>().FirstOrDefaultAsync(
                 item => item.CustomerId == request.CustomerId && item.IsActive,
                 cancellationToken)
-            ?? throw new InvalidOperationException("El cliente no existe o esta inactivo.");
+            ?? throw new InvalidOperationException("El cliente no existe o está inactivo.");
 
         if (documentType == InvoiceTypes.Factura && customer.DocumentType != DocumentTypes.Ruc)
         {
@@ -75,7 +75,7 @@ internal sealed class CreateSaleCommandHandler(
 
         if (products.Count != productIds.Count)
         {
-            throw new InvalidOperationException("Uno o mas productos no existen o estan inactivos.");
+            throw new InvalidOperationException("Uno o más productos no existen o están inactivos.");
         }
 
         var prices = (await unitOfWork.Repository<ProductPrice>().FindAsync(
@@ -229,7 +229,7 @@ internal sealed class CreateSaleCommandHandler(
     {
         if (payments.Any(payment => payment.Amount <= 0 || decimal.Round(payment.Amount, 2) != payment.Amount))
         {
-            throw new InvalidOperationException("Cada pago debe ser mayor a cero y tener como maximo 2 decimales.");
+            throw new InvalidOperationException("Cada pago debe ser mayor a cero y tener como máximo 2 decimales.");
         }
 
         var methodIds = payments.Select(payment => payment.PaymentMethodId).Distinct().ToList();
@@ -240,7 +240,7 @@ internal sealed class CreateSaleCommandHandler(
 
         if (methods.Count != methodIds.Count)
         {
-            throw new InvalidOperationException("Uno o mas metodos de pago no existen o estan inactivos.");
+            throw new InvalidOperationException("Uno o más métodos de pago no existen o están inactivos.");
         }
 
         var change = SalePricing.CalculateChange(total, payments.Sum(payment => payment.Amount));
@@ -250,7 +250,7 @@ internal sealed class CreateSaleCommandHandler(
 
         if (change > cashPaid)
         {
-            throw new InvalidOperationException("Solo se puede pagar de mas en efectivo; el resto de metodos debe cubrir el monto exacto.");
+            throw new InvalidOperationException("Solo se puede pagar de más en efectivo; el resto de métodos debe cubrir el monto exacto.");
         }
 
         var rows = new List<Payment>();

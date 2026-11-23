@@ -41,7 +41,7 @@ internal sealed class ResolveAlertCommandHandler(IUnitOfWork unitOfWork, IForeca
 
         if (alert.Status == AlertStatuses.Resolved)
         {
-            throw new InvalidOperationException("La alerta ya esta resuelta.");
+            throw new InvalidOperationException("La alerta ya está resuelta.");
         }
 
         alert.Status = AlertStatuses.Resolved;

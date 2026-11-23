@@ -10,7 +10,7 @@ public static class ClaimsPrincipalExtensions
         var value = principal.FindFirstValue(JwtRegisteredClaimNames.Sub);
         if (!Guid.TryParse(value, out var userId))
         {
-            throw new UnauthorizedAccessException("El token no contiene un usuario valido.");
+            throw new UnauthorizedAccessException("El token no contiene un usuario válido.");
         }
 
         return userId;

@@ -16,7 +16,7 @@ public static class InfrastructureServicesExtensions
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("La cadena de conexion 'DefaultConnection' no esta configurada.");
+            ?? throw new InvalidOperationException("La cadena de conexión 'DefaultConnection' no está configurada.");
 
         services.AddDbContext<MagazingDbContext>(options => options.UseNpgsql(connectionString));
 

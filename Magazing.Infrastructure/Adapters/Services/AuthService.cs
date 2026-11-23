@@ -14,8 +14,9 @@ namespace Magazing.Infrastructure.Adapters.Services;
 
 public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher, IConfiguration configuration) : IAuthService
 {
-    private const string InvalidCredentialsMessage = "Credenciales invalidas.";
-    private const string InvalidRefreshTokenMessage = "El refresh token es invalido o expiro.";
+    private const string InvalidCredentialsMessage = "Credenciales inválidas.";
+    private const string InvalidRefreshTokenMessage = "El refresh token es inválido o expiró.";
+    private const string ExpiredTemporaryPasswordMessage = "Tu contraseña temporal venció. Pide al administrador que te reenvíe el acceso.";
 
     public async Task<AuthResponse> LoginAsync(string username, string password, string? ipAddress, CancellationToken cancellationToken = default)
     {
@@ -34,7 +35,12 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
 
         if (!user.IsActive)
         {
-            throw new UnauthorizedAccessException("El usuario esta inactivo.");
+            throw new UnauthorizedAccessException("El usuario está inactivo.");
+        }
+
+        if (HasExpiredTemporaryPassword(user))
+        {
+            throw new UnauthorizedAccessException(ExpiredTemporaryPasswordMessage);
         }
 
         user.LastLoginAt = DateTime.UtcNow;
@@ -63,6 +69,11 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
         if (user is null || !user.IsActive)
         {
             throw new UnauthorizedAccessException(InvalidRefreshTokenMessage);
+        }
+
+        if (HasExpiredTemporaryPassword(user))
+        {
+            throw new UnauthorizedAccessException(ExpiredTemporaryPasswordMessage);
         }
 
         var newRefreshToken = GenerateRefreshToken();
@@ -105,21 +116,23 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
 
         if (string.IsNullOrEmpty(currentPassword) || !passwordHasher.Verify(currentPassword, user.PasswordHash))
         {
-            throw new InvalidOperationException("La contrasena actual no es correcta.");
+            throw new InvalidOperationException("La contraseña actual no es correcta.");
         }
 
         if (string.IsNullOrEmpty(newPassword) || newPassword.Length < minPasswordLength)
         {
-            throw new InvalidOperationException($"La nueva contrasena debe tener al menos {minPasswordLength} caracteres.");
+            throw new InvalidOperationException($"La nueva contraseña debe tener al menos {minPasswordLength} caracteres.");
         }
 
         if (passwordHasher.Verify(newPassword, user.PasswordHash))
         {
-            throw new InvalidOperationException("La nueva contrasena debe ser distinta de la actual.");
+            throw new InvalidOperationException("La nueva contraseña debe ser distinta de la actual.");
         }
 
         var now = DateTime.UtcNow;
         user.PasswordHash = passwordHasher.Hash(newPassword);
+        user.MustChangePassword = false;
+        user.TempPasswordExpiresAt = null;
         user.UpdatedAt = now;
 
         var refreshTokens = unitOfWork.Repository<RefreshToken>();
@@ -161,7 +174,8 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
             UserId = user.UserId,
             Username = user.Username,
             Roles = roles,
-            Permissions = permissions
+            Permissions = permissions,
+            MustChangePassword = user.MustChangePassword
         };
     }
 
@@ -197,7 +211,7 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
 
         if (string.IsNullOrWhiteSpace(secretKey) || string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(audience))
         {
-            throw new InvalidOperationException("La configuracion de JWT esta incompleta.");
+            throw new InvalidOperationException("La configuración de JWT está incompleta.");
         }
 
         var claims = new List<Claim>
@@ -207,6 +221,11 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
             new(JwtRegisteredClaimNames.Email, user.Email),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+
+        if (user.MustChangePassword)
+        {
+            claims.Add(new Claim(TemporaryPassword.ClaimType, "true"));
+        }
 
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
         claims.AddRange(permissions.Select(permission => new Claim(Permissions.ClaimType, permission)));
@@ -222,6 +241,11 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private static bool HasExpiredTemporaryPassword(User user)
+    {
+        return user.MustChangePassword && user.TempPasswordExpiresAt is { } expiresAt && expiresAt <= DateTime.UtcNow;
     }
 
     private int GetIntSetting(string key, int defaultValue)

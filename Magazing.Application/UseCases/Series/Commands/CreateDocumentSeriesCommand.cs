@@ -30,7 +30,7 @@ internal sealed partial class CreateDocumentSeriesCommandHandler(IUnitOfWork uni
 
         if (!await unitOfWork.Repository<Branch>().AnyAsync(item => item.BranchId == request.BranchId && item.IsActive, cancellationToken))
         {
-            throw new InvalidOperationException("La sucursal no existe o esta inactiva.");
+            throw new InvalidOperationException("La sucursal no existe o está inactiva.");
         }
 
         var seriesRepository = unitOfWork.Repository<DocumentSeries>();

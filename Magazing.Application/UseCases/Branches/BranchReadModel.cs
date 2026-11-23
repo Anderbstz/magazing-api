@@ -17,7 +17,7 @@ internal static class BranchReadModel
 
         if (string.IsNullOrWhiteSpace(normalizedCode) || normalizedCode.Length > MaxCodeLength)
         {
-            throw new InvalidOperationException($"El codigo es obligatorio y debe tener como maximo {MaxCodeLength} caracteres.");
+            throw new InvalidOperationException($"El código es obligatorio y debe tener como máximo {MaxCodeLength} caracteres.");
         }
 
         if (string.IsNullOrWhiteSpace(normalizedName))

@@ -1294,7 +1294,9 @@ public partial class MagazingDbContext : DbContext
                 .HasDefaultValue(true)
                 .HasColumnName("is_active");
             entity.Property(e => e.LastLoginAt).HasColumnName("last_login_at");
+            entity.Property(e => e.MustChangePassword).HasColumnName("must_change_password");
             entity.Property(e => e.PasswordHash).HasColumnName("password_hash");
+            entity.Property(e => e.TempPasswordExpiresAt).HasColumnName("temp_password_expires_at");
             entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
             entity.Property(e => e.Username)
                 .HasMaxLength(50)

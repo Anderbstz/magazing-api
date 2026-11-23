@@ -65,7 +65,7 @@ public class ExcelReportService : IExcelReportService
         using var workbook = new XLWorkbook();
         var worksheet = workbook.Worksheets.Add("Stock");
 
-        var headers = new[] { "SKU", "Producto", "Categoria", "Unidad", "Stock", "Minimo", "Maximo", "Costo prom.", "Valor", "Estado" };
+        var headers = new[] { "SKU", "Producto", "Categoría", "Unidad", "Stock", "Mínimo", "Máximo", "Costo prom.", "Valor", "Estado" };
         WriteTitle(worksheet, "Stock valorizado", subtitle, headers.Length);
         WriteHeaders(worksheet, headers);
 
@@ -97,13 +97,13 @@ public class ExcelReportService : IExcelReportService
         worksheet.Columns().AdjustToContents();
 
         var summarySheet = workbook.Worksheets.Add("Resumen");
-        WriteTitle(summarySheet, "Resumen del almacen", subtitle, 2);
+        WriteTitle(summarySheet, "Resumen del almacén", subtitle, 2);
         var summaryRows = new (string Label, decimal Value)[]
         {
             ("Productos", summary.ProductCount),
             ("Unidades", summary.TotalUnits),
             ("Valor del inventario", summary.TotalValue),
-            ("Bajo minimo", summary.LowCount),
+            ("Bajo mínimo", summary.LowCount),
             ("Sin stock", summary.OutCount)
         };
 
@@ -127,7 +127,7 @@ public class ExcelReportService : IExcelReportService
 
         var headers = new[]
         {
-            "Fecha", "SKU", "Producto", "Almacen", "Movimiento", "Documento",
+            "Fecha", "SKU", "Producto", "Almacén", "Movimiento", "Documento",
             "Entrada", "Salida", "Saldo", "Costo unit.", "Costo prom.", "Usuario", "Notas"
         };
         WriteTitle(worksheet, "Kardex de inventario", subtitle, headers.Length);
@@ -173,7 +173,7 @@ public class ExcelReportService : IExcelReportService
         return status switch
         {
             StockStatus.Out => "Sin stock",
-            StockStatus.Low => "Bajo minimo",
+            StockStatus.Low => "Bajo mínimo",
             _ => "Normal"
         };
     }

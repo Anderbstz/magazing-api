@@ -15,16 +15,16 @@ internal sealed class UpdateCategoryCommandHandler(IUnitOfWork unitOfWork)
         var name = request.Name?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new InvalidOperationException("El nombre de la categoria es obligatorio.");
+            throw new InvalidOperationException("El nombre de la categoría es obligatorio.");
         }
 
         var categories = unitOfWork.Repository<Category>();
         var category = await categories.GetByIdAsync(request.CategoryId, cancellationToken)
-            ?? throw new KeyNotFoundException("La categoria no existe.");
+            ?? throw new KeyNotFoundException("La categoría no existe.");
 
         if (await categories.AnyAsync(item => item.Name.ToLower() == name.ToLower() && item.CategoryId != request.CategoryId, cancellationToken))
         {
-            throw new InvalidOperationException("Ya existe una categoria con ese nombre.");
+            throw new InvalidOperationException("Ya existe una categoría con ese nombre.");
         }
 
         await CategoryReadModel.EnsureValidParentAsync(unitOfWork, request.CategoryId, request.ParentCategoryId, cancellationToken);

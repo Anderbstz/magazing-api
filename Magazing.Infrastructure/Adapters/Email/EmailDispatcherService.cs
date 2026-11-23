@@ -17,11 +17,13 @@ public class EmailDispatcherService(
     IOptions<EmailOptions> options,
     ILogger<EmailDispatcherService> logger) : BackgroundService
 {
+    private const string CredentialsRemovedBody = "<p>Contenido eliminado tras el envío: incluía una contraseña temporal.</p>";
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         if (!options.Value.DispatcherEnabled)
         {
-            logger.LogInformation("El despachador de correos esta deshabilitado.");
+            logger.LogInformation("El despachador de correos está deshabilitado.");
             return;
         }
 
@@ -86,6 +88,11 @@ public class EmailDispatcherService(
             email.Status = EmailStatuses.Sent;
             email.SentAt = DateTime.UtcNow;
             email.LastError = null;
+
+            if (email.Template is EmailTemplateCodes.Welcome or EmailTemplateCodes.AccessReset)
+            {
+                email.HtmlBody = CredentialsRemovedBody;
+            }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -94,7 +101,7 @@ public class EmailDispatcherService(
             if (email.Attempts >= maxAttempts)
             {
                 email.Status = EmailStatuses.Failed;
-                logger.LogWarning("El correo {EmailId} fallo definitivamente tras {Attempts} intentos.", email.EmailOutboxId, email.Attempts);
+                logger.LogWarning("El correo {EmailId} falló definitivamente tras {Attempts} intentos.", email.EmailOutboxId, email.Attempts);
             }
             else
             {

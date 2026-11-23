@@ -31,18 +31,18 @@ internal sealed class UpdateCompanyCommandHandler(IUnitOfWork unitOfWork)
 
         if (string.IsNullOrWhiteSpace(businessName))
         {
-            throw new InvalidOperationException("La razon social es obligatoria.");
+            throw new InvalidOperationException("La razón social es obligatoria.");
         }
 
         if (email is not null && !DocumentValidator.IsValidEmail(email))
         {
-            throw new InvalidOperationException("El correo no es valido.");
+            throw new InvalidOperationException("El correo no es válido.");
         }
 
         var tracked = await unitOfWork.Repository<CompanyEntity>().GetByIdAsync(
                 (await CompanyReadModel.GetAsync(unitOfWork, cancellationToken)).CompanyId,
                 cancellationToken)
-            ?? throw new KeyNotFoundException("La empresa no esta configurada.");
+            ?? throw new KeyNotFoundException("La empresa no está configurada.");
 
         tracked.Ruc = ruc;
         tracked.BusinessName = businessName;

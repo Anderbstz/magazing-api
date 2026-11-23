@@ -19,23 +19,23 @@ internal sealed class CreateWarehouseCommandHandler(IUnitOfWork unitOfWork)
 
         if (string.IsNullOrWhiteSpace(code) || code.Length > MaxCodeLength)
         {
-            throw new InvalidOperationException($"El codigo es obligatorio y debe tener como maximo {MaxCodeLength} caracteres.");
+            throw new InvalidOperationException($"El código es obligatorio y debe tener como máximo {MaxCodeLength} caracteres.");
         }
 
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new InvalidOperationException("El nombre del almacen es obligatorio.");
+            throw new InvalidOperationException("El nombre del almacén es obligatorio.");
         }
 
         if (!await unitOfWork.Repository<Branch>().AnyAsync(item => item.BranchId == request.BranchId && item.IsActive, cancellationToken))
         {
-            throw new InvalidOperationException("La sucursal no existe o esta inactiva.");
+            throw new InvalidOperationException("La sucursal no existe o está inactiva.");
         }
 
         var warehouses = unitOfWork.Repository<Warehouse>();
         if (await warehouses.AnyAsync(item => item.Code == code, cancellationToken))
         {
-            throw new InvalidOperationException("Ya existe un almacen con ese codigo.");
+            throw new InvalidOperationException("Ya existe un almacén con ese código.");
         }
 
         var warehouse = new Warehouse

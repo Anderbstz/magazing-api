@@ -39,12 +39,12 @@ internal static class SupplierReadModel
 
         if (string.IsNullOrWhiteSpace(data.BusinessName))
         {
-            throw new InvalidOperationException("La razon social es obligatoria.");
+            throw new InvalidOperationException("La razón social es obligatoria.");
         }
 
         if (data.Email is not null && !DocumentValidator.IsValidEmail(data.Email))
         {
-            throw new InvalidOperationException("El correo no es valido.");
+            throw new InvalidOperationException("El correo no es válido.");
         }
 
         return data;

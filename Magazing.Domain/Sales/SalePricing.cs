@@ -8,7 +8,7 @@ public static class SalePricing
     {
         if (discount < 0 || decimal.Round(discount, 2) != discount)
         {
-            throw new InvalidOperationException("El descuento debe ser positivo y tener como maximo 2 decimales.");
+            throw new InvalidOperationException("El descuento debe ser positivo y tener como máximo 2 decimales.");
         }
 
         var gross = decimal.Round(quantity * unitPrice, 2);

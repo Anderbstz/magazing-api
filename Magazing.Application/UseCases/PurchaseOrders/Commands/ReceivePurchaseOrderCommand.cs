@@ -27,7 +27,7 @@ internal sealed class ReceivePurchaseOrderCommandHandler(
         }
 
         var details = await unitOfWork.Repository<PurchaseOrderDetail>().FindAsync(item => item.PurchaseOrderId == order.PurchaseOrderId, cancellationToken);
-        var notes = $"Recepcion de {order.Code}";
+        var notes = $"Recepción de {order.Code}";
 
         foreach (var detail in details)
         {

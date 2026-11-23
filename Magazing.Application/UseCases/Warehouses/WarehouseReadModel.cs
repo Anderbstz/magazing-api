@@ -9,7 +9,7 @@ internal static class WarehouseReadModel
     public static async Task<Warehouse> GetEntityAsync(IUnitOfWork unitOfWork, Guid warehouseId, CancellationToken cancellationToken)
     {
         return await unitOfWork.Repository<Warehouse>().FirstOrDefaultAsync(item => item.WarehouseId == warehouseId, cancellationToken)
-            ?? throw new KeyNotFoundException("El almacen no existe.");
+            ?? throw new KeyNotFoundException("El almacén no existe.");
     }
 
     public static async Task<WarehouseDto> ToDtoAsync(IUnitOfWork unitOfWork, Warehouse warehouse, CancellationToken cancellationToken)

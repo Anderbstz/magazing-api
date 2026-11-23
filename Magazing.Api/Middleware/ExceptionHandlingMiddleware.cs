@@ -33,8 +33,8 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
 
             var message = statusCode switch
             {
-                StatusCodes.Status503ServiceUnavailable => "La base de datos no esta disponible en este momento. Intente nuevamente.",
-                StatusCodes.Status500InternalServerError => "Ocurrio un error inesperado.",
+                StatusCodes.Status503ServiceUnavailable => "La base de datos no está disponible en este momento. Intente nuevamente.",
+                StatusCodes.Status500InternalServerError => "Ocurrió un error inesperado.",
                 _ => ex.Message
             };
 

@@ -36,7 +36,7 @@ public class UnitOfWork(MagazingDbContext context) : IUnitOfWork
         }
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.CheckViolation })
         {
-            throw new InvalidOperationException("La operacion viola una regla de la base de datos.");
+            throw new InvalidOperationException("La operación viola una regla de la base de datos.");
         }
     }
 }

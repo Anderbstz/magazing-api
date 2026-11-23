@@ -16,6 +16,10 @@ public class UserDto
 
     public bool EmailConfirmed { get; set; }
 
+    public bool MustChangePassword { get; set; }
+
+    public DateTime? TempPasswordExpiresAt { get; set; }
+
     public DateTime? LastLoginAt { get; set; }
 
     public DateTime CreatedAt { get; set; }

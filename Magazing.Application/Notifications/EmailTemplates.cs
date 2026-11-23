@@ -9,15 +9,26 @@ internal static class EmailTemplates
 {
     private static readonly CultureInfo Peru = CultureInfo.GetCultureInfo("es-PE");
 
-    public static EmailContent Welcome(string fullName, string username)
+    public static EmailContent AccountAccess(string fullName, string username, string temporaryPassword, DateTime expiresAtLima, bool isNewAccount)
     {
+        var intro = isNewAccount
+            ? "Se creó tu cuenta en Magazing. Estos son tus datos de acceso:"
+            : "El administrador generó un nuevo acceso para tu cuenta de Magazing. La contraseña anterior ya no funciona.";
+
         var body = $"""
             <p>Hola <strong>{Encode(fullName)}</strong>,</p>
-            <p>Se creo tu cuenta en Magazing. Tu usuario es <strong>{Encode(username)}</strong>.</p>
-            <p>La contrasena te la entregara el administrador. Te recomendamos cambiarla en tu primer ingreso.</p>
+            <p>{intro}</p>
+            <table style="border-collapse:collapse;font-size:15px;margin:16px 0">
+              <tr><td style="padding:6px 12px 6px 0;color:#71717a">Usuario</td><td style="padding:6px 0"><strong>{Encode(username)}</strong></td></tr>
+              <tr><td style="padding:6px 12px 6px 0;color:#71717a">Contraseña temporal</td><td style="padding:6px 0;font-family:Consolas,monospace;font-size:16px"><strong>{Encode(temporaryPassword)}</strong></td></tr>
+            </table>
+            <p>La contraseña temporal vence el <strong>{expiresAtLima:dd/MM/yyyy}</strong> a las <strong>{expiresAtLima:HH:mm}</strong>. Al ingresar, Magazing te pedirá que crees tu propia contraseña.</p>
+            <p style="font-size:12px;color:#71717a">Si no esperabas este correo, avisa al administrador de tu empresa.</p>
             """;
 
-        return new EmailContent(EmailTemplateCodes.Welcome, "Bienvenido a Magazing", Layout("Bienvenido a Magazing", body));
+        var subject = isNewAccount ? "Tu cuenta de Magazing" : "Nuevo acceso a Magazing";
+        var code = isNewAccount ? EmailTemplateCodes.Welcome : EmailTemplateCodes.AccessReset;
+        return new EmailContent(code, subject, Layout(isNewAccount ? "Bienvenido a Magazing" : "Nuevo acceso", body));
     }
 
     public static EmailContent Invoice(InvoiceEmailData data)
@@ -58,7 +69,7 @@ internal static class EmailTemplates
               IGV: {Money(data.TaxAmount)}<br>
               <strong>Total: {Money(data.Total)}</strong>
             </p>
-            <p style="font-size:12px;color:#71717a">Representacion impresa de comprobante de prueba. No tiene validez tributaria.</p>
+            <p style="font-size:12px;color:#71717a">Representación impresa de comprobante de prueba. No tiene validez tributaria.</p>
             """;
 
         return new EmailContent(
@@ -73,7 +84,7 @@ internal static class EmailTemplates
         foreach (var alert in alerts)
         {
             var reason = alert.AlertType == "LOW_STOCK"
-                ? $"Stock en o bajo el minimo ({alert.Threshold:0.##})"
+                ? $"Stock en o bajo el mínimo ({alert.Threshold:0.##})"
                 : $"Demanda predicha {alert.Threshold:0.##} para esta semana";
 
             rows.Append($"""
@@ -88,12 +99,12 @@ internal static class EmailTemplates
         }
 
         var body = $"""
-            <p>Se detectaron <strong>{alerts.Count}</strong> productos que necesitan reposicion.</p>
+            <p>Se detectaron <strong>{alerts.Count}</strong> productos que necesitan reposición.</p>
             <table style="width:100%;border-collapse:collapse;font-size:14px">
               <thead>
                 <tr style="background:#f4f4f5">
                   <th style="padding:6px 8px;text-align:left">Producto</th>
-                  <th style="padding:6px 8px;text-align:left">Almacen</th>
+                  <th style="padding:6px 8px;text-align:left">Almacén</th>
                   <th style="padding:6px 8px;text-align:right">Stock</th>
                   <th style="padding:6px 8px;text-align:left">Motivo</th>
                   <th style="padding:6px 8px;text-align:right">Sugerido</th>
@@ -101,7 +112,7 @@ internal static class EmailTemplates
               </thead>
               <tbody>{rows}</tbody>
             </table>
-            <p>Revisa las alertas en Magazing para generar las ordenes de compra.</p>
+            <p>Revisa las alertas en Magazing para generar las órdenes de compra.</p>
             """;
 
         return new EmailContent(

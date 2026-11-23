@@ -51,7 +51,7 @@ internal static class RoleReadModel
         var found = (await unitOfWork.Repository<Permission>().FindAsync(item => permissionIds.Contains(item.PermissionId), cancellationToken)).Count();
         if (found != permissionIds.Count)
         {
-            throw new InvalidOperationException("Uno o mas permisos indicados no existen.");
+            throw new InvalidOperationException("Uno o más permisos indicados no existen.");
         }
     }
 }

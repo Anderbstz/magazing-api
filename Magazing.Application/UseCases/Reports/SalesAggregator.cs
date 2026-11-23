@@ -119,7 +119,7 @@ internal static class SalesAggregator
 
         if (to.DayNumber - from.DayNumber > 731)
         {
-            throw new InvalidOperationException("El rango maximo es de 2 anios.");
+            throw new InvalidOperationException("El rango máximo es de 2 años.");
         }
 
         return (BusinessTime.StartOfDayUtc(from), BusinessTime.StartOfNextDayUtc(to));

@@ -114,11 +114,11 @@ public class InventoryLedger(IUnitOfWork unitOfWork)
         }
 
         var warehouse = await unitOfWork.Repository<Warehouse>().FirstOrDefaultAsync(item => item.WarehouseId == warehouseId, cancellationToken)
-            ?? throw new KeyNotFoundException("El almacen no existe.");
+            ?? throw new KeyNotFoundException("El almacén no existe.");
 
         if (!warehouse.IsActive)
         {
-            throw new InvalidOperationException($"El almacen {warehouse.Code} esta inactivo.");
+            throw new InvalidOperationException($"El almacén {warehouse.Code} está inactivo.");
         }
 
         _warehouses[warehouseId] = warehouse;

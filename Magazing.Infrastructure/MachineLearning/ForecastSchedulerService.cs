@@ -16,7 +16,7 @@ public class ForecastSchedulerService(
     {
         if (!configuration.GetValue("Forecast:SchedulerEnabled", true))
         {
-            logger.LogInformation("La ejecucion programada de predicciones esta deshabilitada.");
+            logger.LogInformation("La ejecución programada de predicciones está deshabilitada.");
             return;
         }
 

@@ -1,5 +1,4 @@
 using Magazing.Application.DTOs.Users;
-using Magazing.Application.Notifications;
 using Magazing.Application.Services;
 using Magazing.Domain.Entities;
 using Magazing.Domain.Repositories;
@@ -10,17 +9,14 @@ namespace Magazing.Application.UseCases.Users.Commands;
 public record CreateUserCommand(
     string Username,
     string Email,
-    string Password,
     string FullName,
     Guid? BranchId,
-    List<Guid>? RoleIds) : IRequest<UserDto>;
+    List<Guid>? RoleIds) : IRequest<UserAccessDto>;
 
 internal sealed class CreateUserCommandHandler(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher)
-    : IRequestHandler<CreateUserCommand, UserDto>
+    : IRequestHandler<CreateUserCommand, UserAccessDto>
 {
-    private const int MinPasswordLength = 8;
-
-    public async Task<UserDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    public async Task<UserAccessDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         var username = request.Username?.Trim() ?? string.Empty;
         var email = request.Email?.Trim().ToLower() ?? string.Empty;
@@ -34,7 +30,7 @@ internal sealed class CreateUserCommandHandler(IUnitOfWork unitOfWork, IPassword
 
         if (!email.Contains('@'))
         {
-            throw new InvalidOperationException("El correo no es valido.");
+            throw new InvalidOperationException("El correo no es válido.");
         }
 
         if (string.IsNullOrWhiteSpace(fullName))
@@ -42,21 +38,16 @@ internal sealed class CreateUserCommandHandler(IUnitOfWork unitOfWork, IPassword
             throw new InvalidOperationException("El nombre completo es obligatorio.");
         }
 
-        if (string.IsNullOrEmpty(request.Password) || request.Password.Length < MinPasswordLength)
-        {
-            throw new InvalidOperationException($"La contrasena debe tener al menos {MinPasswordLength} caracteres.");
-        }
-
         var users = unitOfWork.Repository<User>();
 
         if (await users.AnyAsync(item => item.Username == username, cancellationToken))
         {
-            throw new InvalidOperationException("El nombre de usuario ya esta registrado.");
+            throw new InvalidOperationException("El nombre de usuario ya está registrado.");
         }
 
         if (await users.AnyAsync(item => item.Email == email, cancellationToken))
         {
-            throw new InvalidOperationException("El correo ya esta registrado.");
+            throw new InvalidOperationException("El correo ya está registrado.");
         }
 
         if (request.BranchId is { } branchId
@@ -73,13 +64,15 @@ internal sealed class CreateUserCommandHandler(IUnitOfWork unitOfWork, IPassword
             UserId = Guid.NewGuid(),
             Username = username,
             Email = email,
-            PasswordHash = passwordHasher.Hash(request.Password),
+            PasswordHash = string.Empty,
             FullName = fullName,
             BranchId = request.BranchId,
             IsActive = true,
             EmailConfirmed = false,
             CreatedAt = now
         };
+
+        var (password, expiresAt) = await UserAccess.IssueTemporaryPasswordAsync(unitOfWork, passwordHasher, user, true, cancellationToken);
 
         await users.AddAsync(user, cancellationToken);
 
@@ -93,10 +86,13 @@ internal sealed class CreateUserCommandHandler(IUnitOfWork unitOfWork, IPassword
             }, cancellationToken);
         }
 
-        await EmailQueue.EnqueueAsync(unitOfWork, user.Email, EmailTemplates.Welcome(user.FullName, user.Username), cancellationToken);
-
         await unitOfWork.CompleteAsync(cancellationToken);
 
-        return await UserReadModel.GetAsync(unitOfWork, user.UserId, cancellationToken);
+        return new UserAccessDto
+        {
+            User = await UserReadModel.GetAsync(unitOfWork, user.UserId, cancellationToken),
+            TemporaryPassword = password,
+            ExpiresAt = expiresAt
+        };
     }
 }

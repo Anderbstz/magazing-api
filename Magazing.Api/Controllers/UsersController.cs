@@ -31,8 +31,15 @@ public class UsersController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.UsersManage)]
     public async Task<IActionResult> Create([FromBody] CreateUserCommand request)
     {
-        var user = await sender.Send(request);
-        return CreatedAtAction(nameof(GetById), new { id = user.UserId }, user);
+        var access = await sender.Send(request);
+        return CreatedAtAction(nameof(GetById), new { id = access.User.UserId }, access);
+    }
+
+    [HttpPost("{id:guid}/reset-access")]
+    [Authorize(Policy = Permissions.UsersManage)]
+    public async Task<IActionResult> ResetAccess(Guid id)
+    {
+        return Ok(await sender.Send(new ResetUserAccessCommand(id)));
     }
 
     [HttpPut("{id:guid}")]
