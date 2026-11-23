@@ -56,6 +56,11 @@ internal sealed class CreateUserCommandHandler(IUnitOfWork unitOfWork, IPassword
             throw new InvalidOperationException("La sucursal indicada no existe.");
         }
 
+        if (roleIds.Count == 0)
+        {
+            throw new InvalidOperationException("Asigna al menos un rol: sin rol el usuario no puede usar ningún módulo.");
+        }
+
         await UserReadModel.EnsureRolesExistAsync(unitOfWork, roleIds, cancellationToken);
 
         var now = DateTime.UtcNow;
