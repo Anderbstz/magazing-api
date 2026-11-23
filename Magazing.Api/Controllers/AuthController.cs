@@ -1,4 +1,5 @@
 using Magazing.Api.Authorization;
+using Magazing.Api.Configuration;
 using Magazing.Application.DTOs.Auth;
 using Magazing.Application.DTOs.Settings;
 using Magazing.Application.Services;
@@ -6,6 +7,7 @@ using Magazing.Application.UseCases.Users.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Magazing.Api.Controllers;
 
@@ -22,6 +24,7 @@ public class AuthController(IAuthService authService, ISender sender) : Controll
 
     [HttpPost("login")]
     [AllowAnonymous]
+    [EnableRateLimiting(SecurityExtensions.LoginRateLimitPolicy)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
         return Ok(await authService.LoginAsync(request.Username, request.Password, GetIpAddress(), cancellationToken));
