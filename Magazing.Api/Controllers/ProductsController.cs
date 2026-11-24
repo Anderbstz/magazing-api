@@ -14,6 +14,8 @@ namespace Magazing.Api.Controllers;
 [Authorize]
 public class ProductsController(ISender sender) : ControllerBase
 {
+    private const long MaxImportBytes = 5 * 1024 * 1024;
+
     [HttpGet]
     [Authorize(Policy = Permissions.CatalogRead)]
     public async Task<IActionResult> GetAll(
@@ -39,6 +41,29 @@ public class ProductsController(ISender sender) : ControllerBase
     public async Task<IActionResult> GetPriceHistory(Guid id)
     {
         return Ok(await sender.Send(new GetProductPriceHistoryQuery(id)));
+    }
+
+    [HttpGet("import/template")]
+    [Authorize(Policy = Permissions.CatalogManage)]
+    [Produces(FileContentTypes.Excel)]
+    public async Task<IActionResult> ImportTemplate()
+    {
+        var file = await sender.Send(new GetProductImportTemplateQuery());
+        return File(file.Content, FileContentTypes.Excel, file.FileName);
+    }
+
+    [HttpPost("import")]
+    [Authorize(Policy = Permissions.CatalogManage)]
+    [RequestSizeLimit(MaxImportBytes)]
+    public async Task<IActionResult> Import(IFormFile? file, [FromQuery] bool dryRun = true)
+    {
+        if (file is null || file.Length == 0)
+        {
+            throw new InvalidOperationException("Sube un archivo .xlsx o .csv.");
+        }
+
+        await using var content = file.OpenReadStream();
+        return Ok(await sender.Send(new ImportProductsCommand(content, file.FileName, dryRun, User.GetUserId())));
     }
 
     [HttpPost]

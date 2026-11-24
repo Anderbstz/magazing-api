@@ -15,4 +15,9 @@ public static class ClaimsPrincipalExtensions
 
         return userId;
     }
+
+    public static Guid GetSessionId(this ClaimsPrincipal principal)
+    {
+        return Guid.TryParse(principal.FindFirstValue(JwtRegisteredClaimNames.Sid), out var sessionId) ? sessionId : Guid.Empty;
+    }
 }

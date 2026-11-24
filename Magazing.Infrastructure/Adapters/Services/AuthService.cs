@@ -16,9 +16,10 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
 {
     private const string InvalidCredentialsMessage = "Credenciales inválidas.";
     private const string InvalidRefreshTokenMessage = "El refresh token es inválido o expiró.";
+    private const int MaxUserAgentLength = 300;
     private const string ExpiredTemporaryPasswordMessage = "Tu contraseña temporal venció. Pide al administrador que te reenvíe el acceso.";
 
-    public async Task<AuthResponse> LoginAsync(string username, string password, string? ipAddress, CancellationToken cancellationToken = default)
+    public async Task<AuthResponse> LoginAsync(string username, string password, string? ipAddress, string? userAgent, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
@@ -46,10 +47,10 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
         user.LastLoginAt = DateTime.UtcNow;
         users.Update(user);
 
-        return await IssueTokensAsync(user, GenerateRefreshToken(), ipAddress, cancellationToken);
+        return await IssueTokensAsync(user, GenerateRefreshToken(), new SessionInfo(ipAddress, userAgent, null), cancellationToken);
     }
 
-    public async Task<AuthResponse> LoginWithGoogleAsync(string idToken, string? ipAddress, CancellationToken cancellationToken = default)
+    public async Task<AuthResponse> LoginWithGoogleAsync(string idToken, string? ipAddress, string? userAgent, CancellationToken cancellationToken = default)
     {
         var identity = await googleTokenVerifier.VerifyAsync(idToken, cancellationToken);
 
@@ -76,10 +77,10 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
         user.LastLoginAt = DateTime.UtcNow;
         users.Update(user);
 
-        return await IssueTokensAsync(user, GenerateRefreshToken(), ipAddress, cancellationToken);
+        return await IssueTokensAsync(user, GenerateRefreshToken(), new SessionInfo(ipAddress, userAgent, null), cancellationToken);
     }
 
-    public async Task<AuthResponse> RefreshAsync(string refreshToken, string? ipAddress, CancellationToken cancellationToken = default)
+    public async Task<AuthResponse> RefreshAsync(string refreshToken, string? ipAddress, string? userAgent, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
         {
@@ -112,7 +113,11 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
         storedToken.ReplacedByTokenHash = HashToken(newRefreshToken);
         refreshTokens.Update(storedToken);
 
-        return await IssueTokensAsync(user, newRefreshToken, ipAddress, cancellationToken);
+        return await IssueTokensAsync(
+            user,
+            newRefreshToken,
+            new SessionInfo(ipAddress, storedToken.UserAgent ?? userAgent, storedToken.SessionStartedAt ?? storedToken.CreatedAt),
+            cancellationToken);
     }
 
     public async Task LogoutAsync(string refreshToken, CancellationToken cancellationToken = default)
@@ -175,7 +180,7 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
         await unitOfWork.CompleteAsync(cancellationToken);
     }
 
-    private async Task<AuthResponse> IssueTokensAsync(User user, string refreshToken, string? ipAddress, CancellationToken cancellationToken)
+    private async Task<AuthResponse> IssueTokensAsync(User user, string refreshToken, SessionInfo session, CancellationToken cancellationToken)
     {
         var (roles, permissions) = await GetRolesAndPermissionsAsync(user.UserId, cancellationToken);
 
@@ -183,21 +188,24 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
         var accessTokenExpiresAt = now.AddMinutes(GetIntSetting("Jwt:AccessTokenMinutes", 30));
         var refreshTokenExpiresAt = now.AddDays(GetIntSetting("Jwt:RefreshTokenDays", 7));
 
+        var sessionId = Guid.NewGuid();
         await unitOfWork.Repository<RefreshToken>().AddAsync(new RefreshToken
         {
-            RefreshTokenId = Guid.NewGuid(),
+            RefreshTokenId = sessionId,
             UserId = user.UserId,
             TokenHash = HashToken(refreshToken),
             ExpiresAt = refreshTokenExpiresAt,
             CreatedAt = now,
-            CreatedByIp = ipAddress
+            CreatedByIp = session.IpAddress,
+            UserAgent = session.UserAgent is { Length: > MaxUserAgentLength } agent ? agent[..MaxUserAgentLength] : session.UserAgent,
+            SessionStartedAt = session.StartedAt ?? now
         }, cancellationToken);
 
         await unitOfWork.CompleteAsync(cancellationToken);
 
         return new AuthResponse
         {
-            AccessToken = CreateAccessToken(user, roles, permissions, accessTokenExpiresAt),
+            AccessToken = CreateAccessToken(user, roles, permissions, sessionId, accessTokenExpiresAt),
             AccessTokenExpiresAt = accessTokenExpiresAt,
             RefreshToken = refreshToken,
             RefreshTokenExpiresAt = refreshTokenExpiresAt,
@@ -233,7 +241,7 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
         return (roles, permissions);
     }
 
-    private string CreateAccessToken(User user, IEnumerable<string> roles, IEnumerable<string> permissions, DateTime expiresAt)
+    private string CreateAccessToken(User user, IEnumerable<string> roles, IEnumerable<string> permissions, Guid sessionId, DateTime expiresAt)
     {
         var secretKey = configuration["Jwt:SecretKey"];
         var issuer = configuration["Jwt:Issuer"];
@@ -249,7 +257,8 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
             new(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
             new(JwtRegisteredClaimNames.UniqueName, user.Username),
             new(JwtRegisteredClaimNames.Email, user.Email),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Sid, sessionId.ToString())
         };
 
         if (user.MustChangePassword)
@@ -292,4 +301,6 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
     {
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
     }
+
+    private sealed record SessionInfo(string? IpAddress, string? UserAgent, DateTime? StartedAt);
 }

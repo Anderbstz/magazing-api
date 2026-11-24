@@ -25,8 +25,8 @@ internal sealed class CreateProductCommandHandler(IUnitOfWork unitOfWork)
 {
     public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
-        var sku = request.Sku?.Trim().ToUpper() ?? string.Empty;
-        var barcode = string.IsNullOrWhiteSpace(request.Barcode) ? null : request.Barcode.Trim();
+        var sku = ProductFactory.NormalizeSku(request.Sku);
+        var barcode = ProductFactory.NormalizeBarcode(request.Barcode);
         var name = request.Name?.Trim() ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(sku))
@@ -54,38 +54,19 @@ internal sealed class CreateProductCommandHandler(IUnitOfWork unitOfWork)
             throw new InvalidOperationException("Ya existe un producto con ese código de barras.");
         }
 
-        var now = DateTime.UtcNow;
-        var product = new Product
-        {
-            ProductId = Guid.NewGuid(),
-            Sku = sku,
-            Barcode = barcode,
-            Name = name,
-            Description = request.Description?.Trim(),
-            CategoryId = request.CategoryId,
-            BrandId = request.BrandId,
-            UnitId = request.UnitId,
-            IsTaxable = request.IsTaxable,
-            MinStock = request.MinStock,
-            MaxStock = request.MaxStock,
-            AverageCost = 0,
-            ImageUrl = request.ImageUrl?.Trim(),
-            IsActive = true,
-            CreatedBy = request.CreatedBy,
-            CreatedAt = now
-        };
-
-        await products.AddAsync(product, cancellationToken);
-
-        await unitOfWork.Repository<ProductPrice>().AddAsync(new ProductPrice
-        {
-            ProductPriceId = Guid.NewGuid(),
-            ProductId = product.ProductId,
-            Price = request.Price,
-            ValidFrom = now,
-            CreatedBy = request.CreatedBy,
-            CreatedAt = now
-        }, cancellationToken);
+        var product = await ProductFactory.AddAsync(unitOfWork, new NewProduct(
+            sku,
+            barcode,
+            name,
+            request.Description,
+            request.CategoryId,
+            request.BrandId,
+            request.UnitId,
+            request.IsTaxable,
+            request.MinStock,
+            request.MaxStock,
+            request.Price,
+            request.ImageUrl), request.CreatedBy, cancellationToken);
 
         await unitOfWork.CompleteAsync(cancellationToken);
 

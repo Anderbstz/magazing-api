@@ -845,6 +845,10 @@ public partial class MagazingDbContext : DbContext
             entity.Property(e => e.ReplacedByTokenHash).HasColumnName("replaced_by_token_hash");
             entity.Property(e => e.RevokedAt).HasColumnName("revoked_at");
             entity.Property(e => e.TokenHash).HasColumnName("token_hash");
+            entity.Property(e => e.UserAgent)
+                .HasMaxLength(300)
+                .HasColumnName("user_agent");
+            entity.Property(e => e.SessionStartedAt).HasColumnName("session_started_at");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
