@@ -4,11 +4,11 @@ namespace Magazing.Application.Services;
 
 public interface IAuthService
 {
-    Task<AuthResponse> LoginAsync(string username, string password, string? ipAddress, CancellationToken cancellationToken = default);
+    Task<AuthResponse> LoginAsync(string username, string password, string? ipAddress, string? userAgent, CancellationToken cancellationToken = default);
 
-    Task<AuthResponse> LoginWithGoogleAsync(string idToken, string? ipAddress, CancellationToken cancellationToken = default);
+    Task<AuthResponse> LoginWithGoogleAsync(string idToken, string? ipAddress, string? userAgent, CancellationToken cancellationToken = default);
 
-    Task<AuthResponse> RefreshAsync(string refreshToken, string? ipAddress, CancellationToken cancellationToken = default);
+    Task<AuthResponse> RefreshAsync(string refreshToken, string? ipAddress, string? userAgent, CancellationToken cancellationToken = default);
 
     Task LogoutAsync(string refreshToken, CancellationToken cancellationToken = default);
 

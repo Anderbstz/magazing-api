@@ -21,5 +21,9 @@ public partial class RefreshToken
 
     public string? ReplacedByTokenHash { get; set; }
 
+    public string? UserAgent { get; set; }
+
+    public DateTime? SessionStartedAt { get; set; }
+
     public virtual User User { get; set; } = null!;
 }

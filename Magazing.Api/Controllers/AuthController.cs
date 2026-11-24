@@ -27,7 +27,7 @@ public class AuthController(IAuthService authService, ISender sender) : Controll
     [EnableRateLimiting(SecurityExtensions.LoginRateLimitPolicy)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
-        return Ok(await authService.LoginAsync(request.Username, request.Password, GetIpAddress(), cancellationToken));
+        return Ok(await authService.LoginAsync(request.Username, request.Password, GetIpAddress(), GetUserAgent(), cancellationToken));
     }
 
     [HttpPost("google")]
@@ -35,14 +35,14 @@ public class AuthController(IAuthService authService, ISender sender) : Controll
     [EnableRateLimiting(SecurityExtensions.LoginRateLimitPolicy)]
     public async Task<IActionResult> Google([FromBody] GoogleLoginRequest request, CancellationToken cancellationToken)
     {
-        return Ok(await authService.LoginWithGoogleAsync(request.IdToken, GetIpAddress(), cancellationToken));
+        return Ok(await authService.LoginWithGoogleAsync(request.IdToken, GetIpAddress(), GetUserAgent(), cancellationToken));
     }
 
     [HttpPost("refresh")]
     [AllowAnonymous]
     public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
     {
-        return Ok(await authService.RefreshAsync(request.RefreshToken, GetIpAddress(), cancellationToken));
+        return Ok(await authService.RefreshAsync(request.RefreshToken, GetIpAddress(), GetUserAgent(), cancellationToken));
     }
 
     [HttpPost("logout")]
@@ -64,5 +64,11 @@ public class AuthController(IAuthService authService, ISender sender) : Controll
     private string? GetIpAddress()
     {
         return HttpContext.Connection.RemoteIpAddress?.ToString();
+    }
+
+    private string? GetUserAgent()
+    {
+        var userAgent = Request.Headers.UserAgent.ToString();
+        return string.IsNullOrWhiteSpace(userAgent) ? null : userAgent;
     }
 }
