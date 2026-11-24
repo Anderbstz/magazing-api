@@ -1,7 +1,7 @@
 using Magazing.Application.DTOs.Inventory;
 using Magazing.Application.Services;
-using Magazing.Domain.Common;
-using Magazing.Domain.Inventory;
+using Magazing.Domain.Services.Common;
+using Magazing.Domain.Services.Inventory;
 using MediatR;
 
 namespace Magazing.Application.UseCases.Transfers.Queries;

@@ -1,4 +1,4 @@
-using Magazing.Application.Common;
+using Magazing.Application.Services.Common;
 using Magazing.Application.DTOs.Settings;
 using Magazing.Domain.Repositories;
 using MediatR;

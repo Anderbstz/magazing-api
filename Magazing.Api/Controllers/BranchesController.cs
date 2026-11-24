@@ -1,5 +1,5 @@
 using Magazing.Application.DTOs.Settings;
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.Branches.Commands;
 using Magazing.Application.UseCases.Branches.Queries;
 using MediatR;

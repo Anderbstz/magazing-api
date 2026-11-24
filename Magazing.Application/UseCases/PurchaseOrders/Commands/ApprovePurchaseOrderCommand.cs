@@ -1,7 +1,7 @@
 using Magazing.Application.DTOs.Purchases;
 using Magazing.Application.Services;
 using Magazing.Domain.Entities;
-using Magazing.Domain.Purchases;
+using Magazing.Domain.Services.Purchases;
 using Magazing.Domain.Repositories;
 using MediatR;
 

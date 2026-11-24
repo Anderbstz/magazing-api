@@ -1,4 +1,4 @@
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.Emails.Commands;
 using Magazing.Application.UseCases.Emails.Queries;
 using MediatR;

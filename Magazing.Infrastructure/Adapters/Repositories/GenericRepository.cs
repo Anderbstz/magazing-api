@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Magazing.Domain.Common;
+using Magazing.Domain.Services.Common;
 using Magazing.Domain.Repositories;
 using Magazing.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;

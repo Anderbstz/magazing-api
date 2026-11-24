@@ -31,8 +31,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="MachineLearning\demand-forecast.onnx" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-      <None Update="MachineLearning\demand-forecast.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+      <None Update="Adapters\MachineLearning\demand-forecast.onnx" Link="MachineLearning\demand-forecast.onnx" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+      <None Update="Adapters\MachineLearning\demand-forecast.json" Link="MachineLearning\demand-forecast.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>

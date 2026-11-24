@@ -4,12 +4,17 @@ using Magazing.Api.Middleware;
 var builder = WebApplication.CreateSlimBuilder(args);
 
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddLoginRateLimiting(builder.Configuration);
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors(ServiceRegistrationExtensions.FrontendCorsPolicy);
+
+app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment() || app.Configuration.GetValue("Swagger:Enabled", false))
 {

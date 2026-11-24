@@ -1,4 +1,4 @@
-using Magazing.Application.Common;
+using Magazing.Application.Services.Common;
 using Magazing.Application.DTOs.Purchases;
 using Magazing.Domain.Entities;
 

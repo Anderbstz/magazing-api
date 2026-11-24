@@ -1,6 +1,6 @@
-using Magazing.Api.Authorization;
+using Magazing.Api.Configuration.Authorization;
 using Magazing.Application.DTOs.Inventory;
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.Transfers.Commands;
 using Magazing.Application.UseCases.Transfers.Queries;
 using MediatR;

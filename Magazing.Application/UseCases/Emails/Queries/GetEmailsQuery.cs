@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
 using Magazing.Application.DTOs.Notifications;
-using Magazing.Domain.Common;
+using Magazing.Domain.Services.Common;
 using Magazing.Domain.Entities;
-using Magazing.Domain.Notifications;
+using Magazing.Domain.Services.Notifications;
 using Magazing.Domain.Repositories;
 using MediatR;
 

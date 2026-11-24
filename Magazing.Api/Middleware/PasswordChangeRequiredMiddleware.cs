@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 
 namespace Magazing.Api.Middleware;
 

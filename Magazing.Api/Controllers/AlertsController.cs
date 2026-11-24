@@ -1,5 +1,5 @@
-using Magazing.Api.Authorization;
-using Magazing.Application.Security;
+using Magazing.Api.Configuration.Authorization;
+using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.Alerts.Commands;
 using Magazing.Application.UseCases.Alerts.Queries;
 using MediatR;

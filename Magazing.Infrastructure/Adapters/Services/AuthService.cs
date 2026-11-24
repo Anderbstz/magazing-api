@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Magazing.Application.DTOs.Auth;
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 using Magazing.Application.Services;
 using Magazing.Domain.Entities;
 using Magazing.Domain.Repositories;

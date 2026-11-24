@@ -1,6 +1,6 @@
-using Magazing.Api.Authorization;
+using Magazing.Api.Configuration.Authorization;
 using Magazing.Application.DTOs.Purchases;
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.PurchaseOrders.Commands;
 using Magazing.Application.UseCases.PurchaseOrders.Queries;
 using MediatR;

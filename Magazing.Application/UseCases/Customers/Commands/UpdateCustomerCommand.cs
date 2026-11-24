@@ -1,7 +1,7 @@
 using Magazing.Application.DTOs.Sales;
 using Magazing.Domain.Entities;
 using Magazing.Domain.Repositories;
-using Magazing.Domain.Sales;
+using Magazing.Domain.Services.Sales;
 using MediatR;
 
 namespace Magazing.Application.UseCases.Customers.Commands;

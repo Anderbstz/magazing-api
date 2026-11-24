@@ -1,6 +1,6 @@
-using Magazing.Api.Authorization;
+using Magazing.Api.Configuration.Authorization;
 using Magazing.Application.DTOs.Inventory;
-using Magazing.Application.Security;
+using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.Inventory.Commands;
 using Magazing.Application.UseCases.Inventory.Queries;
 using Magazing.Application.UseCases.Reports.Queries;

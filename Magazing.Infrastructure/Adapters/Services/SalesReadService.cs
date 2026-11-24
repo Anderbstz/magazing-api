@@ -1,6 +1,6 @@
 using Magazing.Application.DTOs.Sales;
 using Magazing.Application.Services;
-using Magazing.Domain.Common;
+using Magazing.Domain.Services.Common;
 using Magazing.Domain.Entities;
 using Magazing.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;

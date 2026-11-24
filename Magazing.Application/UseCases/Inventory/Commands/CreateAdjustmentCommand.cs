@@ -1,6 +1,6 @@
 using Magazing.Application.DTOs.Inventory;
 using Magazing.Application.Services;
-using Magazing.Domain.Inventory;
+using Magazing.Domain.Services.Inventory;
 using Magazing.Domain.Repositories;
 using MediatR;
 

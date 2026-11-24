@@ -3,7 +3,7 @@ using Magazing.Domain.Repositories;
 using Magazing.Infrastructure.Adapters.Email;
 using Magazing.Infrastructure.Adapters.Repositories;
 using Magazing.Infrastructure.Adapters.Services;
-using Magazing.Infrastructure.MachineLearning;
+using Magazing.Infrastructure.Adapters.MachineLearning;
 using Magazing.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

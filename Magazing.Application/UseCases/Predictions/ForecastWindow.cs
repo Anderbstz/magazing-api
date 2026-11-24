@@ -1,4 +1,4 @@
-using Magazing.Application.Common;
+using Magazing.Application.Services.Common;
 using Magazing.Application.DTOs.Forecasting;
 
 namespace Magazing.Application.UseCases.Predictions;

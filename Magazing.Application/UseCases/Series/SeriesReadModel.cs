@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using Magazing.Application.DTOs.Settings;
 using Magazing.Domain.Entities;
 using Magazing.Domain.Repositories;
-using Magazing.Domain.Sales;
+using Magazing.Domain.Services.Sales;
 using MediatR;
 
 namespace Magazing.Application.UseCases.Series;

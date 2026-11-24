@@ -1,5 +1,5 @@
 using System.Globalization;
-using Magazing.Application.Common;
+using Magazing.Application.Services.Common;
 using Magazing.Application.DTOs.Sales;
 using Magazing.Application.DTOs.Settings;
 using Magazing.Application.Services;

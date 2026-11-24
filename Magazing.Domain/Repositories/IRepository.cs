@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Magazing.Domain.Common;
+using Magazing.Domain.Services.Common;
 
 namespace Magazing.Domain.Repositories;
 

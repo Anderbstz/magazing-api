@@ -1,9 +1,9 @@
 using Magazing.Application.DTOs.Reports;
 using Magazing.Application.Services;
-using Magazing.Domain.Forecasting;
-using Magazing.Domain.Inventory;
-using Magazing.Domain.Purchases;
-using Magazing.Domain.Sales;
+using Magazing.Domain.Services.Forecasting;
+using Magazing.Domain.Services.Inventory;
+using Magazing.Domain.Services.Purchases;
+using Magazing.Domain.Services.Sales;
 using Magazing.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
