@@ -8,9 +8,12 @@ public static class SecurityExtensions
 {
     public const string LoginRateLimitPolicy = "login";
 
+    public const string AssistantRateLimitPolicy = "assistant";
+
     public static IServiceCollection AddLoginRateLimiting(this IServiceCollection services, IConfiguration configuration)
     {
         var permitLimit = Math.Max(configuration.GetValue("RateLimiting:LoginAttemptsPerMinute", 10), 1);
+        var assistantLimit = Math.Max(configuration.GetValue("RateLimiting:AssistantRequestsPerMinute", 20), 1);
 
         services.Configure<ForwardedHeadersOptions>(options =>
         {
@@ -34,6 +37,16 @@ public static class SecurityExtensions
                         QueueLimit = 0
                     }));
 
+            options.AddPolicy(AssistantRateLimitPolicy, context =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = assistantLimit,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueLimit = 0
+                    }));
+
             options.OnRejected = async (context, cancellationToken) =>
             {
                 var seconds = context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter)
@@ -45,7 +58,9 @@ public static class SecurityExtensions
                 await context.HttpContext.Response.WriteAsync(
                     JsonSerializer.Serialize(new
                     {
-                        error = $"Demasiados intentos de inicio de sesión. Espera {seconds} segundos e intenta de nuevo."
+                        error = context.HttpContext.Request.Path.StartsWithSegments("/api/assistant")
+                            ? $"Demasiadas consultas al asistente. Espera {seconds} segundos."
+                            : $"Demasiados intentos de inicio de sesión. Espera {seconds} segundos e intenta de nuevo."
                     }),
                     cancellationToken);
             };
