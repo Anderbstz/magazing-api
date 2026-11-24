@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Magazing.Application.UseCases.Users.Commands;
 
-public record AssignUserRolesCommand(Guid UserId, List<Guid> RoleIds) : IRequest<UserDto>;
+public record AssignUserRolesCommand(Guid UserId, List<Guid> RoleIds, Guid ActorId) : IRequest<UserDto>;
 
 internal sealed class AssignUserRolesCommandHandler(IUnitOfWork unitOfWork)
     : IRequestHandler<AssignUserRolesCommand, UserDto>
@@ -14,12 +14,29 @@ internal sealed class AssignUserRolesCommandHandler(IUnitOfWork unitOfWork)
     {
         var roleIds = request.RoleIds?.Distinct().ToList() ?? [];
 
-        if (!await unitOfWork.Repository<User>().AnyAsync(item => item.UserId == request.UserId, cancellationToken))
-        {
-            throw new KeyNotFoundException("El usuario no existe.");
-        }
+        var user = await unitOfWork.Repository<User>().GetByIdAsync(request.UserId, cancellationToken)
+            ?? throw new KeyNotFoundException("El usuario no existe.");
 
         await UserReadModel.EnsureRolesExistAsync(unitOfWork, roleIds, cancellationToken);
+        await AdminGuard.EnsureAdminIsExclusiveAsync(unitOfWork, roleIds, cancellationToken);
+
+        var adminRoleId = await AdminGuard.AdminRoleIdAsync(unitOfWork, cancellationToken);
+        var losesAdmin = adminRoleId is { } adminId
+            && !roleIds.Contains(adminId)
+            && await AdminGuard.IsAdminAsync(unitOfWork, user.UserId, cancellationToken);
+
+        if (losesAdmin)
+        {
+            if (request.UserId == request.ActorId)
+            {
+                throw new InvalidOperationException("No puedes quitarte a ti mismo el rol ADMIN.");
+            }
+
+            if (user.IsActive)
+            {
+                await AdminGuard.EnsureAnotherActiveAdminAsync(unitOfWork, user.UserId, cancellationToken);
+            }
+        }
 
         var userRoles = unitOfWork.Repository<UserRole>();
         var currentRoles = (await userRoles.FindAsync(item => item.UserId == request.UserId, cancellationToken)).ToList();
