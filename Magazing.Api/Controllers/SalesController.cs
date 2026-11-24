@@ -45,6 +45,13 @@ public class SalesController(ISender sender) : ControllerBase
         return File(file.Content, FileContentTypes.Pdf, file.FileName);
     }
 
+    [HttpGet("top-products")]
+    [Authorize(Policy = Permissions.SalesCreate)]
+    public async Task<IActionResult> TopProducts([FromQuery] Guid warehouseId, [FromQuery] int limit = 12)
+    {
+        return Ok(await sender.Send(new GetPosTopProductsQuery(warehouseId, limit)));
+    }
+
     [HttpPost]
     [Authorize(Policy = Permissions.SalesCreate)]
     public async Task<IActionResult> Create([FromBody] CreateSaleRequest request)
