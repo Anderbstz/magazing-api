@@ -12,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Magazing.Infrastructure.Adapters.Services;
 
-public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher, IConfiguration configuration) : IAuthService
+public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher, IGoogleTokenVerifier googleTokenVerifier, IConfiguration configuration) : IAuthService
 {
     private const string InvalidCredentialsMessage = "Credenciales inválidas.";
     private const string InvalidRefreshTokenMessage = "El refresh token es inválido o expiró.";
@@ -36,6 +36,36 @@ public class AuthService(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher,
         if (!user.IsActive)
         {
             throw new UnauthorizedAccessException("El usuario está inactivo.");
+        }
+
+        if (HasExpiredTemporaryPassword(user))
+        {
+            throw new UnauthorizedAccessException(ExpiredTemporaryPasswordMessage);
+        }
+
+        user.LastLoginAt = DateTime.UtcNow;
+        users.Update(user);
+
+        return await IssueTokensAsync(user, GenerateRefreshToken(), ipAddress, cancellationToken);
+    }
+
+    public async Task<AuthResponse> LoginWithGoogleAsync(string idToken, string? ipAddress, CancellationToken cancellationToken = default)
+    {
+        var identity = await googleTokenVerifier.VerifyAsync(idToken, cancellationToken);
+
+        var users = unitOfWork.Repository<User>();
+        var user = await users.FirstOrDefaultAsync(item => item.Email.ToLower() == identity.Email, cancellationToken)
+            ?? throw new UnauthorizedAccessException("Tu correo de Google no corresponde a ningún usuario de Magazing.");
+
+        if (!user.IsActive)
+        {
+            throw new UnauthorizedAccessException("El usuario está inactivo.");
+        }
+
+        var (_, permissions) = await GetRolesAndPermissionsAsync(user.UserId, cancellationToken);
+        if (!permissions.Contains(Permissions.UsersManage))
+        {
+            throw new UnauthorizedAccessException("El acceso con Google es solo para administradores. Entra con tu usuario y contraseña.");
         }
 
         if (HasExpiredTemporaryPassword(user))

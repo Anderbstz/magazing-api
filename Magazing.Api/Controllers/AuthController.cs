@@ -30,6 +30,14 @@ public class AuthController(IAuthService authService, ISender sender) : Controll
         return Ok(await authService.LoginAsync(request.Username, request.Password, GetIpAddress(), cancellationToken));
     }
 
+    [HttpPost("google")]
+    [AllowAnonymous]
+    [EnableRateLimiting(SecurityExtensions.LoginRateLimitPolicy)]
+    public async Task<IActionResult> Google([FromBody] GoogleLoginRequest request, CancellationToken cancellationToken)
+    {
+        return Ok(await authService.LoginWithGoogleAsync(request.IdToken, GetIpAddress(), cancellationToken));
+    }
+
     [HttpPost("refresh")]
     [AllowAnonymous]
     public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)

@@ -23,6 +23,8 @@ public static class InfrastructureServicesExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddEmailServices(configuration);
+        services.AddAssistantServices(configuration);
+        services.AddSingleton<IGoogleTokenVerifier, GoogleTokenVerifier>();
 
         services.AddSingleton<IDemandForecaster, OnnxDemandForecaster>();
         services.AddScoped<IForecastReadService, ForecastReadService>();
@@ -51,6 +53,19 @@ public static class InfrastructureServicesExtensions
 
         services.AddSingleton<EmailDispatcherService>();
         services.AddHostedService(provider => provider.GetRequiredService<EmailDispatcherService>());
+
+        return services;
+    }
+
+    private static IServiceCollection AddAssistantServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        var section = configuration.GetSection("Assistant");
+        services.Configure<AssistantOptions>(section);
+
+        services.AddHttpClient<IChatModel, OpenAiCompatibleChatModel>(client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(Math.Max(section.GetValue("TimeoutSeconds", 60), 10));
+        });
 
         return services;
     }
