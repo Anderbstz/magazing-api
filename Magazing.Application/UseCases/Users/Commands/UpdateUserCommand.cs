@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Magazing.Application.UseCases.Users.Commands;
 
-public record UpdateUserCommand(Guid UserId, string Email, string FullName, Guid? BranchId, bool IsActive) : IRequest<UserDto>;
+public record UpdateUserCommand(Guid UserId, string Email, string FullName, Guid? BranchId, bool IsActive, Guid ActorId) : IRequest<UserDto>;
 
 internal sealed class UpdateUserCommandHandler(IUnitOfWork unitOfWork)
     : IRequestHandler<UpdateUserCommand, UserDto>
@@ -44,6 +44,16 @@ internal sealed class UpdateUserCommandHandler(IUnitOfWork unitOfWork)
 
         if (user.IsActive && !request.IsActive)
         {
+            if (request.UserId == request.ActorId)
+            {
+                throw new InvalidOperationException("No puedes desactivar tu propia cuenta.");
+            }
+
+            if (await AdminGuard.IsAdminAsync(unitOfWork, user.UserId, cancellationToken))
+            {
+                await AdminGuard.EnsureAnotherActiveAdminAsync(unitOfWork, user.UserId, cancellationToken);
+            }
+
             var refreshTokens = unitOfWork.Repository<RefreshToken>();
             var activeTokens = await refreshTokens.FindAsync(
                 item => item.UserId == request.UserId && item.RevokedAt == null,

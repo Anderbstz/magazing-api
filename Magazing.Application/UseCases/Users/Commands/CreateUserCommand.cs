@@ -62,6 +62,7 @@ internal sealed class CreateUserCommandHandler(IUnitOfWork unitOfWork, IPassword
         }
 
         await UserReadModel.EnsureRolesExistAsync(unitOfWork, roleIds, cancellationToken);
+        await AdminGuard.EnsureAdminIsExclusiveAsync(unitOfWork, roleIds, cancellationToken);
 
         var now = DateTime.UtcNow;
         var user = new User

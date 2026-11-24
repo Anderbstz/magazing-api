@@ -1,3 +1,4 @@
+using Magazing.Api.Configuration.Authorization;
 using Magazing.Application.DTOs.Users;
 using Magazing.Application.Services.Security;
 using Magazing.Application.UseCases.Users.Commands;
@@ -46,13 +47,13 @@ public class UsersController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.UsersManage)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserRequest request)
     {
-        return Ok(await sender.Send(new UpdateUserCommand(id, request.Email, request.FullName, request.BranchId, request.IsActive)));
+        return Ok(await sender.Send(new UpdateUserCommand(id, request.Email, request.FullName, request.BranchId, request.IsActive, User.GetUserId())));
     }
 
     [HttpPut("{id:guid}/roles")]
     [Authorize(Policy = Permissions.UsersManage)]
     public async Task<IActionResult> AssignRoles(Guid id, [FromBody] AssignRolesRequest request)
     {
-        return Ok(await sender.Send(new AssignUserRolesCommand(id, request.RoleIds)));
+        return Ok(await sender.Send(new AssignUserRolesCommand(id, request.RoleIds, User.GetUserId())));
     }
 }
