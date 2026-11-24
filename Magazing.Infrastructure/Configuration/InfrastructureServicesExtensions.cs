@@ -24,6 +24,7 @@ public static class InfrastructureServicesExtensions
 
         services.AddEmailServices(configuration);
         services.AddAssistantServices(configuration);
+        services.AddSingleton<IGoogleTokenVerifier, GoogleTokenVerifier>();
 
         services.AddSingleton<IDemandForecaster, OnnxDemandForecaster>();
         services.AddScoped<IForecastReadService, ForecastReadService>();
