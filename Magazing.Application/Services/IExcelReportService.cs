@@ -1,3 +1,4 @@
+using Magazing.Application.DTOs.Catalog;
 using Magazing.Application.DTOs.Inventory;
 using Magazing.Application.DTOs.Reports;
 
@@ -10,4 +11,6 @@ public interface IExcelReportService
     byte[] BuildStockReport(string subtitle, StockSummaryDto summary, IReadOnlyList<StockItemDto> items);
 
     byte[] BuildKardexReport(string subtitle, IReadOnlyList<MovementDto> movements);
+
+    byte[] BuildProductImportTemplate(ProductImportCatalogs catalogs);
 }

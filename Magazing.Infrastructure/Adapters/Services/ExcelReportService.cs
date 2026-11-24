@@ -1,5 +1,6 @@
 using ClosedXML.Excel;
 using Magazing.Application.Services.Common;
+using Magazing.Application.DTOs.Catalog;
 using Magazing.Application.DTOs.Inventory;
 using Magazing.Application.DTOs.Reports;
 using Magazing.Application.Services.Inventory;
@@ -159,6 +160,85 @@ public class ExcelReportService : IExcelReportService
         worksheet.Range(4, 7, lastDataRow, 9).Style.NumberFormat.Format = QuantityFormat;
         worksheet.Range(4, 10, lastDataRow, 11).Style.NumberFormat.Format = CostFormat;
         worksheet.Columns().AdjustToContents();
+
+        return ToBytes(workbook);
+    }
+
+    public byte[] BuildProductImportTemplate(ProductImportCatalogs catalogs)
+    {
+        using var workbook = new XLWorkbook();
+
+        var products = workbook.Worksheets.Add("Productos");
+        var headers = ProductImportColumns.All;
+        for (var column = 0; column < headers.Length; column++)
+        {
+            var cell = products.Cell(1, column + 1);
+            cell.Value = headers[column];
+            cell.Style.Font.Bold = true;
+            cell.Style.Fill.BackgroundColor = ProductImportColumns.Required.Contains(headers[column]) ? XLColor.FromHtml("#CCFBF1") : XLColor.FromHtml("#F1F5F9");
+        }
+
+        var example = new[]
+        {
+            "LEC-GLO-400", "Leche Gloria tarro 400 g", catalogs.Categories.FirstOrDefault() ?? "Abarrotes",
+            catalogs.Units.Any(unit => unit.Code == "NIU") ? "NIU" : catalogs.Units.FirstOrDefault().Code ?? "NIU", "4.50", string.Empty, "7751271000123", "12", string.Empty, "sí",
+            "Fila de ejemplo: reemplázala o bórrala"
+        };
+        for (var column = 0; column < example.Length; column++)
+        {
+            products.Cell(2, column + 1).Value = example[column];
+        }
+
+        products.Range(2, 1, 2, headers.Length).Style.Font.FontColor = XLColor.Gray;
+        products.Column(1).Style.NumberFormat.Format = "@";
+        products.Column(7).Style.NumberFormat.Format = "@";
+        products.SheetView.FreezeRows(1);
+        products.Columns().AdjustToContents();
+
+        var lists = workbook.Worksheets.Add("Valores válidos");
+        lists.Cell(1, 1).Value = "categoria";
+        lists.Cell(1, 2).Value = "marca";
+        lists.Cell(1, 3).Value = "unidad (código)";
+        lists.Cell(1, 4).Value = "unidad (nombre)";
+        lists.Row(1).Style.Font.Bold = true;
+        for (var i = 0; i < catalogs.Categories.Count; i++)
+        {
+            lists.Cell(i + 2, 1).Value = catalogs.Categories[i];
+        }
+
+        for (var i = 0; i < catalogs.Brands.Count; i++)
+        {
+            lists.Cell(i + 2, 2).Value = catalogs.Brands[i];
+        }
+
+        for (var i = 0; i < catalogs.Units.Count; i++)
+        {
+            lists.Cell(i + 2, 3).Value = catalogs.Units[i].Code;
+            lists.Cell(i + 2, 4).Value = catalogs.Units[i].Name;
+        }
+
+        lists.Columns().AdjustToContents();
+
+        var help = workbook.Worksheets.Add("Instrucciones");
+        var notes = new[]
+        {
+            "Cómo importar productos en Magazing",
+            "1. Llena la hoja \"Productos\" desde la fila 2 (una fila por producto). No cambies los encabezados.",
+            "2. Obligatorias (en verde): sku, nombre, categoria, unidad, precio.",
+            "3. categoria, marca y unidad deben existir: revisa la hoja \"Valores válidos\". La unidad puede ser el código (NIU) o el nombre.",
+            "4. precio es el precio de venta con IGV. Usa punto o coma decimal (4.50 o 4,50).",
+            "5. afecto_igv: sí o no (vacío = sí). stock_minimo vacío = 0.",
+            "6. Los productos se crean con stock 0. Para el stock inicial usa Inventario → Stock → Ajustar (entrada).",
+            "7. Al subir el archivo verás una vista previa: solo se crean las filas sin errores."
+        };
+        for (var i = 0; i < notes.Length; i++)
+        {
+            help.Cell(i + 1, 1).Value = notes[i];
+        }
+
+        help.Cell(1, 1).Style.Font.Bold = true;
+        help.Cell(1, 1).Style.Font.FontSize = 13;
+        help.Column(1).Width = 110;
 
         return ToBytes(workbook);
     }
